@@ -1,0 +1,773 @@
+========================== CHƯA LÀM ===========================================
+chi tiết bài tập
+bấm vào ngày đã tập hiện hôm đó tập gì
+quên mk => gửi otp về sđt
+
+
+
+Ê ý tưởng này **làm được và khá hợp để làm project portfolio**, nhất là nếu m muốn đi Front-end nhưng vẫn muốn thể hiện Full-stack + Database.
+
+T nghĩ đừng chỉ làm app “đếm ngày đi gym”, mà biến nó thành **Gym Membership & Attendance Management App** — kiểu app cho **người tập + chi nhánh + quản lý phòng gym**.
+
+## 1. Concept tổng thể
+
+Tên tạm: **GymTrack**
+
+Có 2 loại tài khoản:
+
+* 👤 **Member** — người đi tập
+* 🏢 **Admin/Staff** — nhân viên/quản lý chi nhánh
+
+Luồng chính:
+
+```text
+Đăng ký
+   ↓
+Mua/đăng ký gói tập
+   ↓
+Có ngày bắt đầu + ngày hết hạn
+   ↓
+Check-in mỗi lần đến gym
+   ↓
+Theo dõi lịch sử tập
+   ↓
+Xem số người đang tập tại chi nhánh
+   ↓
+Thống kê tháng
+```
+
+---
+
+# 2. Màn hình dành cho MEMBER
+
+### 🏠 Home
+
+Đây sẽ là màn hình quan trọng nhất.
+
+Ví dụ:
+
+```text
+Xin chào, Minh Tiến 👋
+
+GÓI TẬP CỦA BẠN
+━━━━━━━━━━━━━━━━
+Còn lại: 18 ngày
+Hết hạn: 26/09/2026
+
+████████████░░░ 80%
+
+        [ CHECK-IN ]
+
+━━━━━━━━━━━━━━━━
+
+🏋️ Chi nhánh Nguyễn Văn Linh
+
+🟢 47 người đang tập
+🟡 12 người đang check-in gần đây
+
+━━━━━━━━━━━━━━━━
+
+THÁNG 9
+
+T2 T3 T4 T5 T6 T7 CN
+       ✓  ✓  ✓
+✓  ✓     ✓     ✓
+
+Bạn đã tập: 12 ngày
+Streak: 🔥 4 ngày
+```
+
+Cái **“hiện tại có bao nhiêu người đang tập”** chính là feature khá hay để làm điểm nhấn.
+
+---
+
+# 3. Check-in
+
+Có thể làm nhiều cách.
+
+### Cách 1 — QR Code
+
+Ở cửa phòng gym có QR:
+
+```text
+        ┌─────────────┐
+        │   QR CODE   │
+        │             │
+        │    ████     │
+        │  █  ██ █    │
+        └─────────────┘
+```
+
+Member mở app → Scan QR → check-in.
+
+Database lưu:
+
+```text
+member_id
+branch_id
+check_in_time
+check_out_time
+```
+
+Sau đó:
+
+```text
+🟢 Đang tập
+
+Check-in
+10:32 AM
+
+Thời gian:
+01:24:36
+```
+
+Có thể thêm **Check-out**.
+
+---
+
+# 4. Lịch tập trong tháng
+
+Đây là feature cốt lõi của app.
+
+Calendar:
+
+```text
+        SEPTEMBER 2026
+
+MON TUE WED THU FRI SAT SUN
+ 31   1   2   3   4   5   6
+      ✓   ✓       ✓
+  7   8   9  10  11  12  13
+  ✓   ✓       ✓       ✓
+ 14  15  16  17  18  19  20
+      ✓   ✓   ✓
+```
+
+Click vào ngày:
+
+```text
+09/09/2026
+
+✓ Đã tập
+
+Check-in: 18:32
+Check-out: 20:14
+Thời gian: 1h42m
+
+Chi nhánh:
+Nguyễn Văn Linh
+```
+
+---
+
+# 5. Thống kê cá nhân
+
+Cho nó chuyên nghiệp hơn.
+
+### Monthly Statistics
+
+```text
+THÁNG 9
+
+🔥 12 ngày tập
+
+⏱ 18h 32m
+thời gian tập
+
+📅 40%
+số ngày đã tập
+
+🔥 Streak
+4 ngày
+```
+
+Biểu đồ:
+
+```text
+Số ngày tập
+
+12 │          █
+10 │      █   █
+ 8 │  █   █   █
+ 6 │  █   █   █
+ 4 │  █   █   █
+ 2 │  █   █   █
+ 0 └────────────
+     T7  T8  T9
+```
+
+Có thể thống kê:
+
+* số ngày tập/tháng
+* tổng thời gian tập
+* streak
+* ngày tập nhiều nhất
+* giờ thường đi tập
+* chi nhánh thường tập
+* số lần check-in
+
+---
+
+# 6. Theo dõi số người đang tập
+
+Đây là feature t thấy **đáng để làm nhất**.
+
+Ví dụ Home:
+
+```text
+CHI NHÁNH NGUYỄN VĂN LINH
+
+        🟢 47
+     người đang tập
+
+Mức độ đông
+━━━━━━━━━━━━━━━━━━
+██████████░░░░ 62%
+
+🟢 Thấp
+🟡 Trung bình
+🔴 Đông
+```
+
+Có thể cho user chọn chi nhánh:
+
+```text
+📍 Nguyễn Văn Linh
+📍 3/2
+📍 Cách Mạng Tháng 8
+📍 Ninh Kiều
+```
+
+Rồi:
+
+```text
+Nguyễn Văn Linh
+🟢 47 người
+
+3/2
+🟡 73 người
+
+Ninh Kiều
+🔴 102 người
+```
+
+=> Người dùng có thể biết **nên đi chi nhánh nào cho đỡ đông**.
+
+---
+
+# 7. Thông báo
+
+Ví dụ:
+
+### Sắp hết hạn
+
+> ⚠️ Gói tập của bạn còn 3 ngày.
+
+### Nhắc tập
+
+> 🏋️ Hôm nay bạn chưa tập. Giữ streak 5 ngày nào!
+
+### Chi nhánh đông
+
+> 🔴 Chi nhánh Nguyễn Văn Linh hiện đang có 96 người.
+
+### Gói tập hết hạn
+
+> ❌ Gói tập của bạn đã hết hạn.
+
+---
+
+# 8. Quản lý gói tập
+
+Member có thể xem:
+
+```text
+GÓI HIỆN TẠI
+
+Premium 3 Months
+
+Bắt đầu:
+01/07/2026
+
+Hết hạn:
+30/09/2026
+
+Còn:
+22 ngày
+
+Trạng thái:
+🟢 Active
+```
+
+Nếu muốn làm đẹp hơn:
+
+```text
+Gói tập
+━━━━━━━━━━━━━━━━
+
+🏋️ Premium
+
+01/07 ━━━━━━━━━ 30/09
+           ↑
+        Hôm nay
+
+Còn 22 ngày
+```
+
+---
+
+# 9. Lịch sử check-in
+
+```text
+LỊCH SỬ
+
+09/09
+Nguyễn Văn Linh
+18:32 → 20:14
+1h42m
+
+08/09
+Nguyễn Văn Linh
+17:48 → 19:21
+1h33m
+
+06/09
+3/2
+09:15 → 10:47
+1h32m
+```
+
+Có filter:
+
+```text
+[ Tất cả ] [ Tháng này ] [ Chi nhánh ]
+```
+
+---
+
+# 10. Profile
+
+```text
+┌───────────────────┐
+│       👤          │
+│   Minh Tiến       │
+│ Member #00125     │
+└───────────────────┘
+
+📧 Email
+📱 Phone
+
+Gói tập
+Lịch sử tập
+Thống kê
+Chi nhánh yêu thích
+Thông báo
+
+⚙️ Cài đặt
+🚪 Đăng xuất
+```
+
+---
+
+# 11. ADMIN / STAFF
+
+Đây mới là phần giúp project của m **không bị giống một app CRUD bình thường**.
+
+Admin dashboard:
+
+```text
+GYM DASHBOARD
+
+👥 Tổng hội viên
+1,284
+
+🟢 Đang tập
+87
+
+📅 Check-in hôm nay
+312
+
+⚠️ Sắp hết hạn
+42
+```
+
+---
+
+## 12. Quản lý hội viên
+
+```text
+MEMBERS
+
+Search...
+
+#00125  Minh Tiến
+Premium
+🟢 Active
+
+#00126  Nguyễn Văn A
+Basic
+🟢 Active
+
+#00127  Nguyễn Văn B
+Premium
+🔴 Expired
+```
+
+Click vào member:
+
+```text
+Minh Tiến
+
+Gói:
+Premium 3 Months
+
+Start:
+01/07/2026
+
+Expire:
+30/09/2026
+
+Check-in tháng này:
+12
+
+Tổng check-in:
+87
+```
+
+---
+
+# 13. Quản lý chi nhánh
+
+Admin có thể:
+
+* thêm chi nhánh
+* sửa thông tin
+* xem số người đang tập
+* xem lượng người theo giờ
+* xem lượng check-in/ngày
+
+Ví dụ:
+
+```text
+BRANCH ANALYTICS
+
+Nguyễn Văn Linh
+
+07:00  ████
+09:00  ██████
+11:00  ███
+13:00  ██
+17:00  █████████
+19:00  ████████████
+21:00  █████
+```
+
+=> Cái này nhìn **rất giống hệ thống thật**.
+
+---
+
+# 14. Database
+
+T nghĩ database nên thiết kế kiểu này:
+
+```text
+users
+│
+├── id
+├── name
+├── email
+├── password
+├── phone
+├── role
+└── created_at
+
+memberships
+│
+├── id
+├── user_id
+├── plan_id
+├── start_date
+├── end_date
+└── status
+
+membership_plans
+│
+├── id
+├── name
+├── duration
+├── price
+└── description
+
+branches
+│
+├── id
+├── name
+├── address
+├── capacity
+└── status
+
+checkins
+│
+├── id
+├── user_id
+├── branch_id
+├── check_in
+└── check_out
+
+notifications
+│
+├── id
+├── user_id
+├── title
+├── content
+├── is_read
+└── created_at
+```
+
+Quan hệ:
+
+```text
+USER
+ │
+ ├──── MEMBERSHIP
+ │
+ ├──── CHECKIN ──── BRANCH
+ │
+ └──── NOTIFICATION
+
+MEMBERSHIP ─── PLAN
+```
+
+---
+
+# 15. Stack t đề xuất cho m
+
+Nếu mục tiêu là **đưa vào CV + portfolio**, t sẽ làm:
+
+### Mobile
+
+**React Native + Expo**
+
+```text
+React Native
+      │
+      ├── Expo
+      ├── React Navigation
+      ├── Axios
+      └── NativeWind
+```
+
+M đã có nền Front-end nên học React Native sẽ khá hợp.
+
+### Backend
+
+Có 2 lựa chọn.
+
+**Dễ làm:**
+
+```text
+Node.js
+Express.js
+MySQL
+```
+
+**Xịn hơn:**
+
+```text
+Node.js
+NestJS
+PostgreSQL
+```
+
+Nếu đây là project đầu tiên của m thì t nghiêng về:
+
+> **React Native + Node.js/Express + MySQL**
+
+Đủ để chứng minh:
+
+* Mobile Development
+* REST API
+* Authentication
+* Database
+* CRUD
+* Role-based authorization
+* Real-time data
+* Data visualization
+
+---
+
+# 16. Riêng cái "đang có bao nhiêu người" làm realtime
+
+Cái này m có thể dùng:
+
+**Socket.IO**
+
+Ví dụ:
+
+```text
+Member A check-in
+       ↓
+Backend
+       ↓
+Socket.IO
+       ↓
+Các điện thoại đang xem branch
+       ↓
+47 → 48 người
+```
+
+Không cần refresh app.
+
+Đây là một điểm **rất đáng đưa vào CV**.
+
+---
+
+# 17. Authentication
+
+Làm chuẩn một chút:
+
+```text
+Register
+   ↓
+POST /api/auth/register
+   ↓
+Hash password
+   ↓
+MySQL
+```
+
+Login:
+
+```text
+Login
+ ↓
+JWT
+ ↓
+Access Token
+ ↓
+Mobile App
+```
+
+Role:
+
+```text
+MEMBER
+   ↓
+App người tập
+
+STAFF
+   ↓
+Quản lý chi nhánh
+
+ADMIN
+   ↓
+Quản lý toàn hệ thống
+```
+
+---
+
+# 18. MVP — Đừng làm hết ngay
+
+T khuyên m chia **4 phase**.
+
+### Phase 1 — Core
+
+Làm trước:
+
+* Register
+* Login
+* Profile
+* Membership
+* Start/end date
+* Calendar
+* Check-in
+* Check-in history
+
+### Phase 2 — Branch
+
+* Danh sách chi nhánh
+* Số người đang tập
+* Check-in theo branch
+* QR check-in
+
+### Phase 3 — Statistics
+
+* Monthly statistics
+* Streak
+* Charts
+* Attendance analytics
+
+### Phase 4 — Admin
+
+* Dashboard
+* Member management
+* Membership management
+* Branch management
+* Statistics
+* Notifications
+
+---
+
+# 19. Một feature t nghĩ m nên thêm
+
+### 🔥 "Độ đông dự đoán"
+
+Không chỉ:
+
+> Hiện tại có 47 người.
+
+Mà:
+
+> **19:00 dự kiến: 🔴 Đông**
+
+Dựa vào dữ liệu check-in trước đó.
+
+Ví dụ:
+
+```text
+Hôm nay
+
+17:00  🟡 65 người
+18:00  🔴 91 người
+19:00  🔴 108 người
+20:00  🟡 72 người
+21:00  🟢 41 người
+```
+
+Sau này m có thể lấy dữ liệu lịch sử để làm một model đơn giản dự đoán lượng người.
+
+=> Lúc đó project từ **mobile CRUD app** nâng lên thành:
+
+> **Mobile + Backend + Database + Realtime + Data Analytics + Machine Learning**
+
+Cái này rất đẹp để đưa vào portfolio.
+
+---
+
+## 20. Kiến trúc tổng thể
+
+T sẽ hướng project theo:
+
+```text
+                    ┌──────────────┐
+                    │ React Native │
+                    │   Mobile App │
+                    └──────┬───────┘
+                           │
+                      REST API
+                           │
+                    ┌──────▼───────┐
+                    │ Node.js      │
+                    │ Express      │
+                    └──────┬───────┘
+                           │
+             ┌─────────────┼─────────────┐
+             │             │             │
+          MySQL        Socket.IO      JWT Auth
+             │             │
+             │       Realtime
+             │             │
+             └─────────────┘
+```
+
+**Nếu m làm project này để vừa học vừa bỏ vào CV**, t sẽ không bắt đầu code ngay. Bước đầu tiên nên là **chốt requirements + thiết kế database + API + wireframe khoảng 10–12 màn hình**, rồi mới code. Như vậy làm sẽ đỡ rối và nhìn giống một project thực tế hơn.
