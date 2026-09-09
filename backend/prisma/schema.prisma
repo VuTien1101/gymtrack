@@ -1,0 +1,200 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum WorkoutStatus {
+  PLANNED
+  COMPLETED
+  CANCELLED
+}
+
+enum MembershipStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum NotificationType {
+  MEMBERSHIP
+  WORKOUT
+  ACHIEVEMENT
+  SCHEDULE
+  CHECKIN
+  SYSTEM
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+
+  fullName     String
+  phone        String?  @unique
+  address      String?
+  dateOfBirth  DateTime?
+  gender       Gender?
+
+  height       Float?
+  weight       Float?
+  muscleMass   Float?
+  bodyFat      Float?
+  avatarUrl    String?
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  weightHistory WeightHistory[]
+  workouts      Workout[]
+  checkIns      CheckIn[]
+  memberships   Membership[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model WeightHistory {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+
+  weight    Float
+  bodyFat   Float?
+
+  recordedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, recordedAt])
+  @@map("weight_history")
+}
+
+model Exercise {
+  id           Int      @id @default(autoincrement())
+  name         String
+  muscleGroup  String
+  description  String?
+  instructions String?
+  imageUrl     String?
+  videoUrl     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workoutExercises WorkoutExercise[]
+
+  @@index([muscleGroup])
+  @@map("exercises")
+}
+
+model Workout {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+
+  name      String
+  workoutDate DateTime
+  duration  Int?
+  status    WorkoutStatus @default(PLANNED)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  exercises WorkoutExercise[]
+
+  @@index([userId, workoutDate])
+  @@map("workouts")
+}
+
+model WorkoutExercise {
+  id         Int @id @default(autoincrement())
+  workoutId  Int
+  exerciseId Int
+
+  sets       Int?
+  reps       Int?
+  weight     Float?
+  restTime   Int?
+
+  workout  Workout  @relation(fields: [workoutId], references: [id], onDelete: Cascade)
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([workoutId, exerciseId])
+  @@map("workout_exercises")
+}
+
+model Branch {
+  id       Int    @id @default(autoincrement())
+  name     String
+  address  String
+  phone    String?
+  qrCode   String @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  checkIns CheckIn[]
+
+  @@map("branches")
+}
+
+model CheckIn {
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  branchId Int
+
+  checkedInAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  branch Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@index([userId, checkedInAt])
+  @@index([branchId, checkedInAt])
+  @@map("check_ins")
+}
+
+model Membership {
+  id        Int @id @default(autoincrement())
+  userId    Int
+
+  packageName String
+  startDate   DateTime
+  endDate     DateTime
+  status      MembershipStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, endDate])
+  @@map("memberships")
+}
+
+model Notification {
+  id      Int @id @default(autoincrement())
+  userId  Int
+
+  type    NotificationType
+  title   String
+  message String
+  isRead  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@map("notifications")
+}

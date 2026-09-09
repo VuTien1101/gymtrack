@@ -14,8 +14,10 @@ import {
   faWeightScale,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { router } from "expo-router";
-import { useMemo, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import { useCallback, useMemo, useState } from "react";
+
 import {
   Alert,
   Pressable,
@@ -26,21 +28,108 @@ import {
   View,
 } from "react-native";
 
+const API_URL = "http://192.168.88.173:5000";
+const TOKEN_KEY = "gymtrack_token";
+
 export default function ProfileScreen() {
   const [isEditing, setIsEditing] = useState(false);
 
-  const [name, setName] = useState("Minh Tiến");
-  const [height, setHeight] = useState("169");
-  const [weight, setWeight] = useState("75.4");
-  const [muscleMass, setMuscleMass] = useState("30");
-  const [age, setAge] = useState("21");
+  const [name, setName] = useState("");
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+  const [muscleMass, setMuscleMass] = useState("");
+  const [age, setAge] = useState("");
   const [gender, setGender] = useState<"Nam" | "Nữ">("Nam");
 
-  const [phone] = useState("09xx xxx xxx");
-  const [email] = useState("minhtien@email.com");
-  const [address] = useState("TP. Hồ Chí Minh");
-  const [dateOfBirth] = useState("14/05/2005");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
   const [memberId] = useState("GYM-2026-00128");
+  const [bodyFat, setBodyFat] = useState("");
+
+  const resetProfileState = () => {
+    setName("");
+    setHeight("");
+    setWeight("");
+    setMuscleMass("");
+    setAge("");
+    setGender("Nam");
+    setPhone("");
+    setEmail("");
+    setAddress("");
+    setDateOfBirth("");
+    setBodyFat("");
+  };
+
+  const fetchProfile = useCallback(async () => {
+    try {
+      resetProfileState();
+
+      const token = await SecureStore.getItemAsync(TOKEN_KEY);
+
+      if (!token) {
+        router.replace("/login");
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/api/users/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          await SecureStore.deleteItemAsync(TOKEN_KEY);
+          await SecureStore.deleteItemAsync("gymtrack_user");
+          router.replace("/login");
+          return;
+        }
+
+        throw new Error(result.message || "Không thể lấy thông tin");
+      }
+
+      const user = result.data.user;
+
+      setName(user.fullName || "");
+      setEmail(user.email || "");
+      setPhone(user.phone || "");
+      setAddress(user.address || "");
+      setHeight(user.height?.toString() || "");
+      setWeight(user.weight?.toString() || "");
+      setMuscleMass(user.muscleMass?.toString() || "");
+      setBodyFat(user.bodyFat?.toString() || "");
+
+      if (user.gender === "MALE") {
+        setGender("Nam");
+      } else if (user.gender === "FEMALE") {
+        setGender("Nữ");
+      }
+
+      if (user.dateOfBirth) {
+        const date = new Date(user.dateOfBirth);
+
+        setDateOfBirth(
+          `${String(date.getDate()).padStart(2, "0")}/${String(
+            date.getMonth() + 1,
+          ).padStart(2, "0")}/${date.getFullYear()}`,
+        );
+
+        setAge((new Date().getFullYear() - date.getFullYear()).toString());
+      }
+    } catch (error) {
+      console.error("Fetch profile error:", error);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchProfile();
+    }, [fetchProfile]),
+  );
 
   const bmi = useMemo(() => {
     const h = Number(height) / 100;
@@ -50,6 +139,8 @@ export default function ProfileScreen() {
   }, [height, weight]);
 
   const estimatedBodyFat = useMemo(() => {
+    if (bodyFat) return Number(bodyFat);
+
     const bmiValue = bmi;
     const ageValue = Number(age);
     if (!bmiValue || !ageValue) return 0;
@@ -65,20 +156,69 @@ export default function ProfileScreen() {
     return { label: "Béo phì", color: "#F56C6C" };
   }, [bmi]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name.trim()) {
       Alert.alert("Thông báo", "Vui lòng nhập họ tên.");
       return;
     }
-    if (!height || !weight || !age) {
+
+    if (!height || !weight) {
       Alert.alert("Thông báo", "Vui lòng nhập đầy đủ thông tin cơ thể.");
       return;
     }
-    setIsEditing(false);
-    Alert.alert(
-      "Đã cập nhật",
-      "Thông tin cá nhân và chỉ số cơ thể đã được cập nhật.",
-    );
+
+    try {
+      const token = await SecureStore.getItemAsync(TOKEN_KEY);
+
+      if (!token) {
+        router.replace("/login");
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/api/users/me`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          fullName: name,
+          phone,
+          address,
+          dateOfBirth: dateOfBirth
+            ? dateOfBirth.split("/").reverse().join("-")
+            : null,
+          gender: gender === "Nam" ? "MALE" : "FEMALE",
+          height: Number(height),
+          weight: Number(weight),
+          muscleMass: muscleMass ? Number(muscleMass) : null,
+          bodyFat: bodyFat ? Number(bodyFat) : null,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          await SecureStore.deleteItemAsync(TOKEN_KEY);
+          router.replace("/login");
+          return;
+        }
+
+        throw new Error(result.message || "Cập nhật thất bại");
+      }
+
+      setIsEditing(false);
+
+      Alert.alert("Đã cập nhật", "Thông tin đã được lưu vào hệ thống.");
+    } catch (error) {
+      console.error("Update profile error:", error);
+
+      Alert.alert(
+        "Lỗi",
+        error instanceof Error ? error.message : "Không thể cập nhật thông tin",
+      );
+    }
   };
 
   const handleChangePassword = () => {
@@ -98,7 +238,12 @@ export default function ProfileScreen() {
       {
         text: "Đăng xuất",
         style: "destructive",
-        onPress: () => router.replace("/login"),
+        onPress: async () => {
+          await SecureStore.deleteItemAsync(TOKEN_KEY);
+          await SecureStore.deleteItemAsync("gymtrack_user");
+          resetProfileState();
+          router.replace("/login");
+        },
       },
     ]);
   };

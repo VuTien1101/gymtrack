@@ -1,37 +1,88 @@
 import {
-    faEnvelope,
-    faEye,
-    faEyeSlash,
-    faLock,
+  faEnvelope,
+  faEye,
+  faEyeSlash,
+  faLock,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const TOKEN_KEY = "gymtrack_token";
+const USER_KEY = "gymtrack_user";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
       Alert.alert("Thông báo", "Vui lòng nhập đầy đủ email và mật khẩu.");
       return;
     }
-    // Chuyển hướng vào trang chủ
-    router.replace("/");
+
+    try {
+      setIsSubmitting(true);
+
+      const response = await fetch(
+        "http://192.168.88.173:5000/api/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email.trim(),
+            password,
+          }),
+        },
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Đăng nhập thất bại");
+      }
+
+      const token = result.data?.token;
+      if (!token) {
+        throw new Error("Server không trả về token");
+      }
+
+      await SecureStore.deleteItemAsync(TOKEN_KEY);
+      await SecureStore.deleteItemAsync(USER_KEY);
+      await SecureStore.setItemAsync(TOKEN_KEY, token);
+      await SecureStore.setItemAsync(
+        USER_KEY,
+        JSON.stringify(result.data.user),
+      );
+
+      router.replace("/");
+    } catch (error) {
+      console.error("Login error:", error);
+
+      Alert.alert(
+        "Đăng nhập thất bại",
+        error instanceof Error ? error.message : "Không thể kết nối đến server",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -124,12 +175,16 @@ export default function LoginScreen() {
             {/* Login Button */}
             <Pressable
               onPress={handleLogin}
+              disabled={isSubmitting}
               style={({ pressed }) => [
                 styles.primaryButton,
-                pressed && styles.pressed,
+                pressed && !isSubmitting && styles.pressed,
+                isSubmitting && styles.primaryButtonDisabled,
               ]}
             >
-              <Text style={styles.primaryButtonText}>Đăng nhập</Text>
+              <Text style={styles.primaryButtonText}>
+                {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
+              </Text>
             </Pressable>
           </View>
 
@@ -224,6 +279,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 3,
+  },
+  primaryButtonDisabled: {
+    opacity: 0.7,
   },
   primaryButtonText: {
     color: "#FFFFFF",

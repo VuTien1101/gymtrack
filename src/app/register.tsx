@@ -22,21 +22,72 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+const API_URL = "http://192.168.88.173:5000";
+
 export default function RegisterScreen() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleRegister = () => {
-    if (!fullName.trim() || !email.trim() || !password.trim()) {
+  const handleRegister = async () => {
+    if (
+      !fullName.trim() ||
+      !email.trim() ||
+      !phone.trim() ||
+      !address.trim() ||
+      !dateOfBirth.trim() ||
+      !password.trim()
+    ) {
       Alert.alert("Thông báo", "Vui lòng nhập đầy đủ thông tin bắt buộc.");
       return;
     }
-    Alert.alert("Thành công", "Tài khoản của bạn đã được tạo!", [
-      { text: "Đăng nhập", onPress: () => router.replace("/login") },
-    ]);
+
+    if (password.length < 6) {
+      Alert.alert("Thông báo", "Mật khẩu phải có ít nhất 6 ký tự.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      const response = await fetch(`${API_URL}/api/auth/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fullName: fullName.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          address: address.trim(),
+          dateOfBirth,
+          password,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Đăng ký thất bại");
+      }
+
+      Alert.alert("Thành công", "Tài khoản của bạn đã được tạo!", [
+        { text: "Đăng nhập", onPress: () => router.replace("/login") },
+      ]);
+    } catch (error) {
+      console.error("Register error:", error);
+      Alert.alert(
+        "Đăng ký thất bại",
+        error instanceof Error ? error.message : "Không thể kết nối đến server",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -123,6 +174,35 @@ export default function RegisterScreen() {
               </View>
             </View>
 
+            {/* Date of Birth */}
+            <View style={styles.inputWrapper}>
+              <Text style={styles.inputLabel}>Ngày sinh</Text>
+              <View style={styles.inputContainer}>
+                <TextInput
+                  value={dateOfBirth}
+                  onChangeText={setDateOfBirth}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor="#9CA3AF"
+                  keyboardType="numbers-and-punctuation"
+                  style={[styles.input, { marginLeft: 0 }]}
+                />
+              </View>
+            </View>
+
+            {/* Address */}
+            <View style={styles.inputWrapper}>
+              <Text style={styles.inputLabel}>Địa chỉ</Text>
+              <View style={styles.inputContainer}>
+                <TextInput
+                  value={address}
+                  onChangeText={setAddress}
+                  placeholder="TP. Hồ Chí Minh"
+                  placeholderTextColor="#9CA3AF"
+                  style={styles.input}
+                />
+              </View>
+            </View>
+
             {/* Password */}
             <View style={styles.inputWrapper}>
               <Text style={styles.inputLabel}>Mật khẩu</Text>
@@ -157,12 +237,16 @@ export default function RegisterScreen() {
             {/* Register Button */}
             <Pressable
               onPress={handleRegister}
+              disabled={isSubmitting}
               style={({ pressed }) => [
                 styles.primaryButton,
-                pressed && styles.pressed,
+                pressed && !isSubmitting && styles.pressed,
+                isSubmitting && styles.primaryButtonDisabled,
               ]}
             >
-              <Text style={styles.primaryButtonText}>Đăng ký</Text>
+              <Text style={styles.primaryButtonText}>
+                {isSubmitting ? "Đang đăng ký..." : "Đăng ký"}
+              </Text>
             </Pressable>
           </View>
 
@@ -248,6 +332,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 3,
+  },
+  primaryButtonDisabled: {
+    opacity: 0.7,
   },
   primaryButtonText: {
     color: "#FFFFFF",
