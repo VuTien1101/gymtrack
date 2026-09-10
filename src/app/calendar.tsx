@@ -4,26 +4,20 @@ import {
   faDumbbell,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { useMemo, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
+import {
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { api, CheckIn, Workout } from "../lib/api";
 
 const WEEK_DAYS = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
-
-const WORKOUT_DAYS = [
-  "2026-09-01",
-  "2026-09-02",
-  "2026-09-04",
-  "2026-09-05",
-  "2026-09-07",
-  "2026-09-09",
-  "2026-09-10",
-  "2026-09-12",
-  "2026-09-15",
-  "2026-09-16",
-  "2026-09-18",
-  "2026-09-21",
-];
 
 function formatDate(year: number, month: number, day: number) {
   return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(
@@ -38,9 +32,45 @@ export default function CalendarScreen() {
   const [currentDate, setCurrentDate] = useState(
     new Date(today.getFullYear(), today.getMonth(), 1),
   );
+  const [refreshing, setRefreshing] = useState(false);
+  const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [statistics, setStatistics] = useState<Awaited<
+    ReturnType<typeof api.getStatistics>
+  > | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
+
+  const loadCheckIns = useCallback(async () => {
+    try {
+      const from = new Date(year, month, 1).toISOString();
+      const to = new Date(year, month + 1, 1).toISOString();
+      const result = await api.getCheckIns(from, to);
+      setCheckIns(result.checkIns);
+      const workoutResult = await api.getWorkouts(from, to);
+      setWorkouts(workoutResult.workouts);
+      const statisticResult = await api.getStatistics(
+        `${year}-${String(month + 1).padStart(2, "0")}`,
+      );
+      setStatistics(statisticResult);
+    } catch (error) {
+      console.error("Load calendar check-ins error:", error);
+    }
+  }, [year, month]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadCheckIns();
+    }, [loadCheckIns]),
+  );
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadCheckIns();
+    setRefreshing(false);
+  };
 
   const monthName = currentDate.toLocaleDateString("vi-VN", {
     month: "long",
@@ -82,21 +112,31 @@ export default function CalendarScreen() {
   };
 
   const isWorkoutDay = (day: number) => {
-    return WORKOUT_DAYS.includes(formatDate(year, month, day));
+    return checkIns.some(
+      (checkIn) =>
+        checkIn.checkedInAt.slice(0, 10) === formatDate(year, month, day),
+    );
   };
 
-  const workoutCount = WORKOUT_DAYS.filter((date) => {
-    const [y, m] = date.split("-").map(Number);
-    return y === year && m === month + 1;
-  }).length;
+  const workoutCount = new Set(
+    checkIns.map((checkIn) => checkIn.checkedInAt.slice(0, 10)),
+  ).size;
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
-        overScrollMode="never"
-        bounces={false}
+        overScrollMode="always"
+        bounces
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor="#111827"
+            colors={["#111827"]}
+          />
+        }
       >
         {/* Header */}
         <View style={styles.header}>
@@ -148,7 +188,11 @@ export default function CalendarScreen() {
               const todayCell = isToday(day);
 
               return (
-                <View key={day} style={styles.dayCell}>
+                <Pressable
+                  key={day}
+                  style={styles.dayCell}
+                  onPress={() => setSelectedDate(formatDate(year, month, day))}
+                >
                   <View
                     style={[
                       styles.dayCircle,
@@ -167,7 +211,7 @@ export default function CalendarScreen() {
                       {day}
                     </Text>
                   </View>
-                </View>
+                </Pressable>
               );
             })}
           </View>
@@ -200,7 +244,7 @@ export default function CalendarScreen() {
 
             <View style={styles.stat}>
               <View style={styles.streakRow}>
-                <Text style={styles.statNumber}>4</Text>
+                <Text style={styles.statNumber}>{statistics?.streak ?? 0}</Text>
               </View>
               <Text style={styles.statLabel}>Chuỗi Streak</Text>
             </View>
@@ -208,11 +252,65 @@ export default function CalendarScreen() {
             <View style={styles.divider} />
 
             <View style={styles.stat}>
-              <Text style={styles.statNumber}>40%</Text>
+              <Text style={styles.statNumber}>
+                {statistics
+                  ? `${Math.round((statistics.workoutDays / new Date(year, month + 1, 0).getDate()) * 100)}%`
+                  : "0%"}
+              </Text>
               <Text style={styles.statLabel}>Tần suất tập</Text>
             </View>
           </View>
         </View>
+
+        {selectedDate && (
+          <View style={styles.noteCard}>
+            <View style={styles.noteContent}>
+              <Text style={styles.noteTitle}>Chi tiết {selectedDate}</Text>
+              {checkIns
+                .filter(
+                  (item) => item.checkedInAt.slice(0, 10) === selectedDate,
+                )
+                .map((item) => (
+                  <Text key={item.id} style={styles.noteText}>
+                    {item.branch.name}:{" "}
+                    {new Date(item.checkedInAt).toLocaleTimeString("vi-VN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}{" "}
+                    -{" "}
+                    {item.checkedOutAt
+                      ? new Date(item.checkedOutAt).toLocaleTimeString(
+                          "vi-VN",
+                          { hour: "2-digit", minute: "2-digit" },
+                        )
+                      : "đang tập"}
+                  </Text>
+                ))}
+              {workouts
+                .filter(
+                  (item) => item.workoutDate.slice(0, 10) === selectedDate,
+                )
+                .map((workout) => (
+                  <Text key={workout.id} style={styles.noteText}>
+                    {workout.name}:{" "}
+                    {workout.exercises
+                      .map((item) => item.exercise.name)
+                      .join(", ") || "Chưa có bài tập"}
+                  </Text>
+                ))}
+              {!checkIns.some(
+                (item) => item.checkedInAt.slice(0, 10) === selectedDate,
+              ) &&
+                !workouts.some(
+                  (item) => item.workoutDate.slice(0, 10) === selectedDate,
+                ) && (
+                  <Text style={styles.noteText}>
+                    Chưa có dữ liệu tập luyện.
+                  </Text>
+                )}
+            </View>
+          </View>
+        )}
 
         {/* Motivation Note Card */}
         <View style={styles.noteCard}>
@@ -270,7 +368,7 @@ const styles = StyleSheet.create({
   /* Calendar Card */
   calendarCard: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 24,
+    borderRadius: 16,
     padding: 20,
     marginTop: 8,
     shadowColor: "#000",
@@ -414,7 +512,7 @@ const styles = StyleSheet.create({
   /* Statistics Card */
   statsCard: {
     backgroundColor: "#111827",
-    borderRadius: 24,
+    borderRadius: 16,
     padding: 20,
     marginTop: 16,
     shadowColor: "#000",
@@ -472,7 +570,7 @@ const styles = StyleSheet.create({
   /* Note Card */
   noteCard: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 20,
+    borderRadius: 16,
     padding: 16,
     marginTop: 16,
     flexDirection: "row",

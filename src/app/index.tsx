@@ -6,37 +6,184 @@ import {
   faDumbbell,
   faFire,
   faLocationDot,
+  faPhone,
   faQrcode,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { router } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
+import {
+  Alert,
+  Modal,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  interpolate,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { api, Dashboard } from "../lib/api";
 
 export default function HomeScreen() {
-  const weekDays = [
-    { day: "T2", date: "1", checked: false, isToday: false },
-    { day: "T3", date: "2", checked: false, isToday: false },
-    { day: "T4", date: "3", checked: true, isToday: false },
-    { day: "T5", date: "4", checked: false, isToday: true },
-    { day: "T6", date: "5", checked: false, isToday: false },
-    { day: "T7", date: "6", checked: true, isToday: false },
-    { day: "CN", date: "7", checked: false, isToday: false },
-  ];
+  const [refreshing, setRefreshing] = useState(false);
+  const [dashboard, setDashboard] = useState<Dashboard | null>(null);
+  const [showBranches, setShowBranches] = useState(false);
+  const [branchQuery, setBranchQuery] = useState("");
+  const [branches, setBranches] = useState<import("../lib/api").Branch[]>([]);
+  const sheetTranslationY = useSharedValue(0);
+  const [weekCheckIns, setWeekCheckIns] = useState<
+    import("../lib/api").CheckIn[]
+  >([]);
+
+  const loadDashboard = useCallback(async () => {
+    try {
+      const result = await api.getDashboard();
+      setDashboard(result);
+      const branchResult = await api.getBranches();
+      setBranches(branchResult.branches);
+      const now = new Date();
+      const mondayOffset = (now.getDay() + 6) % 7;
+      const monday = new Date(now);
+      monday.setDate(now.getDate() - mondayOffset);
+      monday.setHours(0, 0, 0, 0);
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 7);
+      const weekResult = await api.getCheckIns(
+        monday.toISOString(),
+        sunday.toISOString(),
+      );
+      setWeekCheckIns(weekResult.checkIns);
+    } catch (error) {
+      console.error("Load dashboard error:", error);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadDashboard();
+    }, [loadDashboard]),
+  );
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await loadDashboard();
+    setRefreshing(false);
+  };
+
+  const closeBranchSheet = () => {
+    setShowBranches(false);
+    sheetTranslationY.value = 0;
+  };
+
+  const sheetGesture = Gesture.Pan()
+    .activeOffsetY(12)
+    .failOffsetX([-24, 24])
+    .onUpdate((event) => {
+      sheetTranslationY.value = Math.max(0, event.translationY);
+    })
+    .onEnd(() => {
+      if (sheetTranslationY.value > 120) {
+        runOnJS(closeBranchSheet)();
+      } else {
+        sheetTranslationY.value = withSpring(0, {
+          damping: 20,
+          stiffness: 220,
+        });
+      }
+    });
+
+  const sheetStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: sheetTranslationY.value }],
+  }));
+
+  const sheetBackdropStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(sheetTranslationY.value, [0, 360], [1, 0.35]),
+  }));
+
+  const handleCheckInToggle = async () => {
+    try {
+      if (dashboard?.activeCheckIn) {
+        await api.checkout(dashboard.activeCheckIn.id);
+      } else if (dashboard?.branch) {
+        await api.createCheckIn(dashboard.branch.id);
+      } else {
+        Alert.alert(
+          "Chưa có chi nhánh",
+          "Bạn cần chọn chi nhánh trước khi check-in.",
+        );
+        return;
+      }
+
+      await loadDashboard();
+    } catch (error) {
+      Alert.alert(
+        "Không thể cập nhật check-in",
+        error instanceof Error ? error.message : "Vui lòng thử lại",
+      );
+    }
+  };
+
+  const membership = dashboard?.membership;
+  const remainingDays = membership
+    ? Math.max(
+        0,
+        Math.ceil(
+          (new Date(membership.endDate).getTime() - Date.now()) / 86400000,
+        ),
+      )
+    : 0;
+
+  const now = new Date();
+  const mondayOffset = (now.getDay() + 6) % 7;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - mondayOffset);
+  const weekDays = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"].map(
+    (day, index) => {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + index);
+      const dateKey = date.toISOString().slice(0, 10);
+      return {
+        day,
+        date: String(date.getDate()),
+        checked: weekCheckIns.some(
+          (item) => item.checkedInAt.slice(0, 10) === dateKey,
+        ),
+        isToday: dateKey === now.toISOString().slice(0, 10),
+      };
+    },
+  );
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
-        overScrollMode="never"
-        bounces={false}
+        overScrollMode="always"
+        bounces
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor="#111827"
+            colors={["#111827"]}
+          />
+        }
       >
         {/* Header */}
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>Xin chào 👋</Text>
-            <Text style={styles.name}>Minh Tiến</Text>
+            <Text style={styles.name}>{dashboard?.user.fullName || "Bạn"}</Text>
           </View>
 
           <View style={styles.avatar}>
@@ -55,17 +202,27 @@ export default function HomeScreen() {
             </View>
           </View>
 
-          <Text style={styles.planName}>Premium 3 Tháng</Text>
+          <Text style={styles.planName}>
+            {membership?.packageName || "Chưa có gói tập"}
+          </Text>
 
           <View style={styles.dateRow}>
             <View>
               <Text style={styles.dateLabel}>Bắt đầu</Text>
-              <Text style={styles.dateValue}>01/07/2026</Text>
+              <Text style={styles.dateValue}>
+                {membership
+                  ? new Date(membership.startDate).toLocaleDateString("vi-VN")
+                  : "--"}
+              </Text>
             </View>
 
             <View style={styles.dateRight}>
               <Text style={styles.dateLabel}>Hết hạn</Text>
-              <Text style={styles.dateValue}>30/09/2026</Text>
+              <Text style={styles.dateValue}>
+                {membership
+                  ? new Date(membership.endDate).toLocaleDateString("vi-VN")
+                  : "--"}
+              </Text>
             </View>
           </View>
 
@@ -74,14 +231,19 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.cardFooter}>
-            <Text style={styles.remaining}>Còn 22 ngày</Text>
-            <Text style={styles.usageText}>Đã dùng 75%</Text>
+            <Text style={styles.remaining}>Còn {remainingDays} ngày</Text>
+            <Text style={styles.usageText}>
+              {dashboard
+                ? `${dashboard.stats.checkInCount} buổi tháng này`
+                : "Chưa có dữ liệu"}
+            </Text>
           </View>
         </View>
 
         {/* Quick Actions (Check-in & Explore Gym) */}
         <View style={styles.quickActionsContainer}>
           <Pressable
+            onPress={handleCheckInToggle}
             style={({ pressed }) => [
               styles.actionButtonPrimary,
               pressed && styles.pressed,
@@ -92,8 +254,14 @@ export default function HomeScreen() {
               <FontAwesomeIcon icon={faQrcode} size={18} color="#111827" />
             </View>
             <View style={styles.actionContent}>
-              <Text style={styles.actionTitlePrimary}>CHECK-IN</Text>
-              <Text style={styles.actionSubtitlePrimary}>Mở mã quét QR</Text>
+              <Text style={styles.actionTitlePrimary}>
+                {dashboard?.activeCheckIn ? "CHECK-OUT" : "CHECK-IN"}
+              </Text>
+              <Text style={styles.actionSubtitlePrimary}>
+                {dashboard?.activeCheckIn
+                  ? "Kết thúc buổi tập"
+                  : "Bắt đầu buổi tập"}
+              </Text>
             </View>
           </Pressable>
 
@@ -120,27 +288,108 @@ export default function HomeScreen() {
         {/* Current Branch */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Chi nhánh tập luyện</Text>
-          <Pressable>
-            <Text style={styles.changeText}>Thay đổi</Text>
-          </Pressable>
         </View>
 
-        <View style={styles.branchCard}>
+        <Pressable
+          style={styles.branchCard}
+          onPress={() => setShowBranches(true)}
+        >
           {/* BỎ BACKGROUND XÁM CỦA ICON CHI NHÁNH */}
           <View style={styles.branchIconTransparent}>
             <FontAwesomeIcon icon={faLocationDot} size={20} color="#111827" />
           </View>
 
           <View style={styles.branchInfo}>
-            <Text style={styles.branchName}>Nguyễn Văn Linh</Text>
-            <Text style={styles.branchAddress}>Chi nhánh đã lưu</Text>
+            <Text style={styles.branchName}>
+              {dashboard?.branch?.name || "Chưa chọn chi nhánh"}
+            </Text>
+            <Text style={styles.branchAddress}>
+              {dashboard?.branch?.address || "Chưa có dữ liệu"}
+            </Text>
           </View>
 
           <View style={styles.peopleBadge}>
-            <Text style={styles.peopleNumber}>47</Text>
+            <Text style={styles.peopleNumber}>
+              {dashboard?.branchActiveCount ?? 0}
+            </Text>
             <Text style={styles.peopleLabel}>người đang tập</Text>
           </View>
-        </View>
+        </Pressable>
+
+        <Modal
+          visible={showBranches}
+          transparent
+          animationType="fade"
+          onRequestClose={closeBranchSheet}
+        >
+          <View style={styles.branchSheetOverlay}>
+            <Animated.View
+              pointerEvents="box-none"
+              style={[styles.branchSheetBackdrop, sheetBackdropStyle]}
+            >
+              <Pressable
+                style={styles.branchSheetBackdropPressable}
+                onPress={closeBranchSheet}
+              />
+            </Animated.View>
+            <GestureDetector gesture={sheetGesture}>
+              <Animated.View style={[styles.branchSheet, sheetStyle]}>
+                <View style={styles.sheetHandle} />
+                <Text style={styles.sheetTitle}>Chi nhánh</Text>
+                <TextInput
+                  value={branchQuery}
+                  onChangeText={setBranchQuery}
+                  placeholder="Tìm kiếm chi nhánh"
+                  placeholderTextColor="#9CA3AF"
+                  style={styles.branchSearch}
+                />
+                <Animated.ScrollView
+                  showsVerticalScrollIndicator={false}
+                  style={styles.branchOptions}
+                >
+                  {branches
+                    .filter((branch) =>
+                      `${branch.name} ${branch.address}`
+                        .toLowerCase()
+                        .includes(branchQuery.toLowerCase()),
+                    )
+                    .map((branch) => (
+                      <Pressable
+                        key={branch.id}
+                        style={styles.branchOption}
+                        onPress={async () => {
+                          await api.setPreferredBranch(branch.id);
+                          closeBranchSheet();
+                          await loadDashboard();
+                        }}
+                      >
+                        <FontAwesomeIcon
+                          icon={faLocationDot}
+                          size={18}
+                          color="#111827"
+                        />
+                        <View style={styles.branchOptionInfo}>
+                          <Text style={styles.branchOptionName}>
+                            {branch.name}
+                          </Text>
+                          <View style={styles.branchPhoneRow}>
+                            <FontAwesomeIcon
+                              icon={faPhone}
+                              size={11}
+                              color="#6B7280"
+                            />
+                            <Text style={styles.branchOptionPhone}>
+                              {branch.phone || "Chưa cập nhật số điện thoại"}
+                            </Text>
+                          </View>
+                        </View>
+                      </Pressable>
+                    ))}
+                </Animated.ScrollView>
+              </Animated.View>
+            </GestureDetector>
+          </View>
+        </Modal>
 
         {/* Monthly Statistics */}
         <Text style={styles.sectionTitleStandalone}>Thống kê tháng 9</Text>
@@ -155,7 +404,9 @@ export default function HomeScreen() {
                 color="#111827"
               />
             </View>
-            <Text style={styles.statNumber}>12</Text>
+            <Text style={styles.statNumber}>
+              {dashboard?.stats.checkInCount ?? 0}
+            </Text>
             <Text style={styles.statLabel}>Buổi tập</Text>
           </View>
 
@@ -163,7 +414,9 @@ export default function HomeScreen() {
             <View style={styles.statIconTransparent}>
               <FontAwesomeIcon icon={faFire} size={18} color="#111827" />
             </View>
-            <Text style={styles.statNumber}>4 ngày</Text>
+            <Text style={styles.statNumber}>
+              {dashboard?.stats.streak ?? 0} ngày
+            </Text>
             <Text style={styles.statLabel}>Chuỗi Streak</Text>
           </View>
 
@@ -171,16 +424,21 @@ export default function HomeScreen() {
             <View style={styles.statIconTransparent}>
               <FontAwesomeIcon icon={faClock} size={18} color="#111827" />
             </View>
-            <Text style={styles.statNumber}>18 giờ</Text>
+            <Text style={styles.statNumber}>
+              {Math.round((dashboard?.stats.totalMinutes ?? 0) / 60)} giờ
+            </Text>
             <Text style={styles.statLabel}>Tổng thời gian</Text>
           </View>
         </View>
 
         {/* Weekly Calendar Preview */}
-        <View style={styles.sectionHeader}>
+        <Pressable
+          style={styles.sectionHeader}
+          onPress={() => router.push("/calendar")}
+        >
           <Text style={styles.sectionTitle}>Lịch tập tuần này</Text>
           <FontAwesomeIcon icon={faChevronRight} size={12} color="#6B7280" />
-        </View>
+        </Pressable>
 
         <View style={styles.calendarCard}>
           <View style={styles.calendarRow}>
@@ -284,7 +542,7 @@ const styles = StyleSheet.create({
   membershipCard: {
     marginHorizontal: 20,
     backgroundColor: "#111827",
-    borderRadius: 24,
+    borderRadius: 16,
     padding: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
@@ -403,7 +661,7 @@ const styles = StyleSheet.create({
   actionButtonPrimary: {
     flex: 1,
     backgroundColor: "#111827",
-    borderRadius: 18,
+    borderRadius: 16,
     padding: 14,
     flexDirection: "row",
     alignItems: "center",
@@ -434,7 +692,7 @@ const styles = StyleSheet.create({
   actionButtonSecondary: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    borderRadius: 18,
+    borderRadius: 16,
     padding: 14,
     flexDirection: "row",
     alignItems: "center",
@@ -503,7 +761,7 @@ const styles = StyleSheet.create({
   branchCard: {
     marginHorizontal: 20,
     backgroundColor: "#FFFFFF",
-    borderRadius: 20,
+    borderRadius: 16,
     padding: 16,
     flexDirection: "row",
     alignItems: "center",
@@ -569,7 +827,7 @@ const styles = StyleSheet.create({
   statCard: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    borderRadius: 18,
+    borderRadius: 16,
     padding: 14,
     alignItems: "flex-start",
     shadowColor: "#000",
@@ -605,7 +863,7 @@ const styles = StyleSheet.create({
   calendarCard: {
     marginHorizontal: 20,
     backgroundColor: "#FFFFFF",
-    borderRadius: 20,
+    borderRadius: 16,
     paddingVertical: 16,
     paddingHorizontal: 8,
     shadowColor: "#000",
@@ -613,6 +871,94 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 5,
     elevation: 2,
+  },
+
+  branchSheetOverlay: {
+    ...StyleSheet.absoluteFill,
+    zIndex: 10,
+    justifyContent: "flex-end",
+  },
+
+  branchSheetBackdrop: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: "rgba(17, 24, 39, 0.35)",
+  },
+
+  branchSheetBackdropPressable: {
+    flex: 1,
+  },
+
+  branchSheet: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 20,
+    paddingBottom: 32,
+    maxHeight: "75%",
+  },
+
+  branchOptions: {
+    flexShrink: 1,
+  },
+
+  sheetHandle: {
+    width: 42,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: "#D1D5DB",
+    alignSelf: "center",
+    marginBottom: 16,
+  },
+
+  sheetTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: "#111827",
+    marginBottom: 14,
+  },
+
+  branchSearch: {
+    backgroundColor: "#F3F4F6",
+    borderRadius: 12,
+    padding: 13,
+    marginBottom: 10,
+  },
+
+  branchSearchText: {
+    color: "#9CA3AF",
+    fontSize: 14,
+  },
+
+  branchOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: "#F3F4F6",
+  },
+
+  branchOptionInfo: {
+    flex: 1,
+  },
+
+  branchOptionName: {
+    color: "#111827",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+
+  branchOptionPhone: {
+    color: "#6B7280",
+    fontSize: 12,
+    marginTop: 3,
+  },
+
+  branchPhoneRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    marginTop: 3,
   },
 
   calendarRow: {

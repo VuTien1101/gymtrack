@@ -1,138 +1,210 @@
 import {
-  faBell as faBellRegular,
-  faCalendar as faCalendarRegular,
-  faHouse as faHouseRegular,
-  faUser as faUserRegular,
+    faBell as faBellRegular,
+    faCalendar as faCalendarRegular,
+    faCreditCard as faCreditCardRegular,
+    faHouse as faHouseRegular,
+    faUser as faUserRegular,
 } from "@fortawesome/free-regular-svg-icons";
 
 import {
-  faBell as faBellSolid,
-  faCalendarDays as faCalendarSolid,
-  faHouse as faHouseSolid,
-  faUser as faUserSolid,
+    faBell as faBellSolid,
+    faCalendarDays as faCalendarSolid,
+    faCreditCard as faCreditCardSolid,
+    faHouse as faHouseSolid,
+    faUser as faUserSolid,
 } from "@fortawesome/free-solid-svg-icons";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { Tabs } from "expo-router";
+import { router, Tabs, useFocusEffect, usePathname } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import { useCallback, useEffect, useState } from "react";
 import { Platform, StyleSheet } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { EdgeSwipeBack } from "../components/edge-swipe-back";
+import { api, subscribeToUnreadNotifications, TOKEN_KEY } from "../lib/api";
 
 export default function RootLayout() {
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [hasToken, setHasToken] = useState<boolean | null>(null);
+  const pathname = usePathname();
+  const isPublicRoute = pathname === "/login" || pathname === "/register";
+
+  useEffect(() => {
+    let isMounted = true;
+
+    SecureStore.getItemAsync(TOKEN_KEY).then((token) => {
+      if (!isMounted) return;
+
+      setHasToken(Boolean(token));
+      if (!token && !isPublicRoute) {
+        router.replace("/login");
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isPublicRoute]);
+
+  useFocusEffect(
+    useCallback(() => {
+      api
+        .getNotifications()
+        .then((result) => {
+          setUnreadCount(
+            result.notifications.filter((item) => !item.isRead).length,
+          );
+        })
+        .catch(() => setUnreadCount(0));
+      return subscribeToUnreadNotifications(setUnreadCount);
+    }, []),
+  );
+
+  if (hasToken === null || (!hasToken && !isPublicRoute)) {
+    return <GestureHandlerRootView style={styles.root} />;
+  }
+
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: "#111827",
-        tabBarInactiveTintColor: "#9CA3AF",
-        tabBarLabelStyle: styles.tabBarLabel,
-        tabBarStyle: styles.tabBar,
-      }}
-    >
-      {/* 1. Trang chủ */}
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Trang chủ",
-          tabBarIcon: ({ focused, color }) => (
-            <FontAwesomeIcon
-              icon={focused ? faHouseSolid : faHouseRegular}
-              size={20}
-              color={color as string}
-            />
-          ),
-        }}
-      />
+    <GestureHandlerRootView style={styles.root}>
+      <EdgeSwipeBack>
+        <Tabs
+          screenOptions={{
+            headerShown: false,
+            tabBarActiveTintColor: "#111827",
+            tabBarInactiveTintColor: "#9CA3AF",
+            tabBarLabelStyle: styles.tabBarLabel,
+            tabBarStyle: styles.tabBar,
+          }}
+        >
+          {/* 1. Trang chủ */}
+          <Tabs.Screen
+            name="index"
+            options={{
+              title: "Trang chủ",
+              tabBarIcon: ({ focused, color }) => (
+                <FontAwesomeIcon
+                  icon={focused ? faHouseSolid : faHouseRegular}
+                  size={20}
+                  color={color as string}
+                />
+              ),
+            }}
+          />
 
-      {/* 2. Tập luyện */}
-      <Tabs.Screen
-        name="calendar"
-        options={{
-          title: "Tập luyện",
-          tabBarIcon: ({ focused, color }) => (
-            <FontAwesomeIcon
-              icon={focused ? faCalendarSolid : faCalendarRegular}
-              size={20}
-              color={color as string}
-            />
-          ),
-        }}
-      />
+          {/* 2. Dịch vụ (Nằm ngay bên phải trang index) */}
+          <Tabs.Screen
+            name="services"
+            options={{
+              title: "Dịch vụ",
+              tabBarIcon: ({ focused, color }) => (
+                <FontAwesomeIcon
+                  icon={focused ? faCreditCardSolid : faCreditCardRegular}
+                  size={20}
+                  color={color as string}
+                />
+              ),
+            }}
+          />
 
-      {/* 3. Thông báo */}
-      <Tabs.Screen
-        name="notifications"
-        options={{
-          title: "Thông báo",
-          tabBarBadge: 3,
-          tabBarBadgeStyle: styles.badge,
-          tabBarIcon: ({ focused, color }) => (
-            <FontAwesomeIcon
-              icon={focused ? faBellSolid : faBellRegular}
-              size={20}
-              color={color as string}
-            />
-          ),
-        }}
-      />
+          {/* 3. Tập luyện */}
+          <Tabs.Screen
+            name="calendar"
+            options={{
+              title: "Tập luyện",
+              tabBarIcon: ({ focused, color }) => (
+                <FontAwesomeIcon
+                  icon={focused ? faCalendarSolid : faCalendarRegular}
+                  size={20}
+                  color={color as string}
+                />
+              ),
+            }}
+          />
 
-      {/* 4. Cá nhân */}
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Cá nhân",
-          tabBarIcon: ({ focused, color }) => (
-            <FontAwesomeIcon
-              icon={focused ? faUserSolid : faUserRegular}
-              size={20}
-              color={color as string}
-            />
-          ),
-        }}
-      />
+          {/* 4. Thông báo */}
+          <Tabs.Screen
+            name="notifications"
+            options={{
+              title: "Thông báo",
+              ...(unreadCount > 0
+                ? { tabBarBadge: unreadCount, tabBarBadgeStyle: styles.badge }
+                : { tabBarBadge: undefined }),
+              tabBarIcon: ({ focused, color }) => (
+                <FontAwesomeIcon
+                  icon={focused ? faBellSolid : faBellRegular}
+                  size={20}
+                  color={color as string}
+                />
+              ),
+            }}
+          />
 
-      {/* ---------------------------------------------------- */}
-      {/* CÁC MÀN HÌNH PHỤ: ẨN KHỎI TAB BAR & KHÔNG HIỂN THỊ NAV */}
-      {/* ---------------------------------------------------- */}
+          {/* 5. Cá nhân */}
+          <Tabs.Screen
+            name="profile"
+            options={{
+              title: "Cá nhân",
+              tabBarIcon: ({ focused, color }) => (
+                <FontAwesomeIcon
+                  icon={focused ? faUserSolid : faUserRegular}
+                  size={20}
+                  color={color as string}
+                />
+              ),
+            }}
+          />
 
-      {/* Explore */}
-      <Tabs.Screen
-        name="explore"
-        options={{
-          href: null,
-          tabBarStyle: { display: "none" },
-        }}
-      />
+          {/* ---------------------------------------------------- */}
+          {/* CÁC MÀN HÌNH PHỤ: ẨN KHỎI TAB BAR & KHÔNG HIỂN THỊ NAV */}
+          {/* ---------------------------------------------------- */}
 
-      {/* Login */}
-      <Tabs.Screen
-        name="login"
-        options={{
-          href: null,
-          tabBarStyle: { display: "none" },
-        }}
-      />
+          {/* Explore */}
+          <Tabs.Screen
+            name="explore"
+            options={{
+              href: null,
+              tabBarStyle: { display: "none" },
+            }}
+          />
 
-      {/* Register */}
-      <Tabs.Screen
-        name="register"
-        options={{
-          href: null,
-          tabBarStyle: { display: "none" },
-        }}
-      />
+          {/* Login */}
+          <Tabs.Screen
+            name="login"
+            options={{
+              href: null,
+              tabBarStyle: { display: "none" },
+            }}
+          />
 
-      {/* Change Password */}
-      <Tabs.Screen
-        name="change-password"
-        options={{
-          href: null,
-          tabBarStyle: { display: "none" },
-        }}
-      />
-    </Tabs>
+          {/* Register */}
+          <Tabs.Screen
+            name="register"
+            options={{
+              href: null,
+              tabBarStyle: { display: "none" },
+            }}
+          />
+
+          {/* Change Password */}
+          <Tabs.Screen
+            name="change-password"
+            options={{
+              href: null,
+              tabBarStyle: { display: "none" },
+            }}
+          />
+          <Tabs.Screen
+            name="branches"
+            options={{ href: null, tabBarStyle: { display: "none" } }}
+          />
+        </Tabs>
+      </EdgeSwipeBack>
+    </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
+  root: { flex: 1 },
   tabBar: {
     backgroundColor: "#FFFFFF",
     borderTopWidth: 1,

@@ -1,28 +1,26 @@
 import {
-  faEnvelope,
-  faEye,
-  faEyeSlash,
-  faLock,
+    faEnvelope,
+    faEye,
+    faEyeSlash,
+    faLock,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
 import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-const TOKEN_KEY = "gymtrack_token";
-const USER_KEY = "gymtrack_user";
+import { api, TOKEN_KEY, USER_KEY } from "../lib/api";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -39,27 +37,8 @@ export default function LoginScreen() {
     try {
       setIsSubmitting(true);
 
-      const response = await fetch(
-        "http://192.168.88.173:5000/api/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: email.trim(),
-            password,
-          }),
-        },
-      );
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Đăng nhập thất bại");
-      }
-
-      const token = result.data?.token;
+      const result = await api.login(email.trim(), password);
+      const token = result.token;
       if (!token) {
         throw new Error("Server không trả về token");
       }
@@ -67,10 +46,7 @@ export default function LoginScreen() {
       await SecureStore.deleteItemAsync(TOKEN_KEY);
       await SecureStore.deleteItemAsync(USER_KEY);
       await SecureStore.setItemAsync(TOKEN_KEY, token);
-      await SecureStore.setItemAsync(
-        USER_KEY,
-        JSON.stringify(result.data.user),
-      );
+      await SecureStore.setItemAsync(USER_KEY, JSON.stringify(result.user));
 
       router.replace("/");
     } catch (error) {

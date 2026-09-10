@@ -21,8 +21,7 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-const API_URL = "http://192.168.88.173:5000";
+import { api } from "../lib/api";
 
 export default function RegisterScreen() {
   const [fullName, setFullName] = useState("");
@@ -55,26 +54,14 @@ export default function RegisterScreen() {
     try {
       setIsSubmitting(true);
 
-      const response = await fetch(`${API_URL}/api/auth/register`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          fullName: fullName.trim(),
-          email: email.trim(),
-          phone: phone.trim(),
-          address: address.trim(),
-          dateOfBirth,
-          password,
-        }),
+      await api.register({
+        fullName: fullName.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        address: address.trim(),
+        dateOfBirth,
+        password,
       });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Đăng ký thất bại");
-      }
 
       Alert.alert("Thành công", "Tài khoản của bạn đã được tạo!", [
         { text: "Đăng nhập", onPress: () => router.replace("/login") },

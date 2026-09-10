@@ -233,6 +233,7 @@ export type BranchWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Branch"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Branch"> | Date | string
   checkIns?: Prisma.CheckInListRelationFilter
+  preferredByUsers?: Prisma.UserListRelationFilter
 }
 
 export type BranchOrderByWithRelationInput = {
@@ -244,6 +245,7 @@ export type BranchOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   checkIns?: Prisma.CheckInOrderByRelationAggregateInput
+  preferredByUsers?: Prisma.UserOrderByRelationAggregateInput
 }
 
 export type BranchWhereUniqueInput = Prisma.AtLeast<{
@@ -258,6 +260,7 @@ export type BranchWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Branch"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Branch"> | Date | string
   checkIns?: Prisma.CheckInListRelationFilter
+  preferredByUsers?: Prisma.UserListRelationFilter
 }, "id" | "qrCode">
 
 export type BranchOrderByWithAggregationInput = {
@@ -296,6 +299,7 @@ export type BranchCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   checkIns?: Prisma.CheckInCreateNestedManyWithoutBranchInput
+  preferredByUsers?: Prisma.UserCreateNestedManyWithoutPreferredBranchInput
 }
 
 export type BranchUncheckedCreateInput = {
@@ -307,6 +311,7 @@ export type BranchUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   checkIns?: Prisma.CheckInUncheckedCreateNestedManyWithoutBranchInput
+  preferredByUsers?: Prisma.UserUncheckedCreateNestedManyWithoutPreferredBranchInput
 }
 
 export type BranchUpdateInput = {
@@ -317,6 +322,7 @@ export type BranchUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checkIns?: Prisma.CheckInUpdateManyWithoutBranchNestedInput
+  preferredByUsers?: Prisma.UserUpdateManyWithoutPreferredBranchNestedInput
 }
 
 export type BranchUncheckedUpdateInput = {
@@ -328,6 +334,7 @@ export type BranchUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   checkIns?: Prisma.CheckInUncheckedUpdateManyWithoutBranchNestedInput
+  preferredByUsers?: Prisma.UserUncheckedUpdateManyWithoutPreferredBranchNestedInput
 }
 
 export type BranchCreateManyInput = {
@@ -357,6 +364,11 @@ export type BranchUncheckedUpdateManyInput = {
   qrCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type BranchNullableScalarRelationFilter = {
+  is?: Prisma.BranchWhereInput | null
+  isNot?: Prisma.BranchWhereInput | null
 }
 
 export type BranchCountOrderByAggregateInput = {
@@ -402,6 +414,22 @@ export type BranchScalarRelationFilter = {
   isNot?: Prisma.BranchWhereInput
 }
 
+export type BranchCreateNestedOneWithoutPreferredByUsersInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutPreferredByUsersInput, Prisma.BranchUncheckedCreateWithoutPreferredByUsersInput>
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutPreferredByUsersInput
+  connect?: Prisma.BranchWhereUniqueInput
+}
+
+export type BranchUpdateOneWithoutPreferredByUsersNestedInput = {
+  create?: Prisma.XOR<Prisma.BranchCreateWithoutPreferredByUsersInput, Prisma.BranchUncheckedCreateWithoutPreferredByUsersInput>
+  connectOrCreate?: Prisma.BranchCreateOrConnectWithoutPreferredByUsersInput
+  upsert?: Prisma.BranchUpsertWithoutPreferredByUsersInput
+  disconnect?: Prisma.BranchWhereInput | boolean
+  delete?: Prisma.BranchWhereInput | boolean
+  connect?: Prisma.BranchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BranchUpdateToOneWithWhereWithoutPreferredByUsersInput, Prisma.BranchUpdateWithoutPreferredByUsersInput>, Prisma.BranchUncheckedUpdateWithoutPreferredByUsersInput>
+}
+
 export type BranchCreateNestedOneWithoutCheckInsInput = {
   create?: Prisma.XOR<Prisma.BranchCreateWithoutCheckInsInput, Prisma.BranchUncheckedCreateWithoutCheckInsInput>
   connectOrCreate?: Prisma.BranchCreateOrConnectWithoutCheckInsInput
@@ -416,6 +444,64 @@ export type BranchUpdateOneRequiredWithoutCheckInsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BranchUpdateToOneWithWhereWithoutCheckInsInput, Prisma.BranchUpdateWithoutCheckInsInput>, Prisma.BranchUncheckedUpdateWithoutCheckInsInput>
 }
 
+export type BranchCreateWithoutPreferredByUsersInput = {
+  name: string
+  address: string
+  phone?: string | null
+  qrCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  checkIns?: Prisma.CheckInCreateNestedManyWithoutBranchInput
+}
+
+export type BranchUncheckedCreateWithoutPreferredByUsersInput = {
+  id?: number
+  name: string
+  address: string
+  phone?: string | null
+  qrCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  checkIns?: Prisma.CheckInUncheckedCreateNestedManyWithoutBranchInput
+}
+
+export type BranchCreateOrConnectWithoutPreferredByUsersInput = {
+  where: Prisma.BranchWhereUniqueInput
+  create: Prisma.XOR<Prisma.BranchCreateWithoutPreferredByUsersInput, Prisma.BranchUncheckedCreateWithoutPreferredByUsersInput>
+}
+
+export type BranchUpsertWithoutPreferredByUsersInput = {
+  update: Prisma.XOR<Prisma.BranchUpdateWithoutPreferredByUsersInput, Prisma.BranchUncheckedUpdateWithoutPreferredByUsersInput>
+  create: Prisma.XOR<Prisma.BranchCreateWithoutPreferredByUsersInput, Prisma.BranchUncheckedCreateWithoutPreferredByUsersInput>
+  where?: Prisma.BranchWhereInput
+}
+
+export type BranchUpdateToOneWithWhereWithoutPreferredByUsersInput = {
+  where?: Prisma.BranchWhereInput
+  data: Prisma.XOR<Prisma.BranchUpdateWithoutPreferredByUsersInput, Prisma.BranchUncheckedUpdateWithoutPreferredByUsersInput>
+}
+
+export type BranchUpdateWithoutPreferredByUsersInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qrCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  checkIns?: Prisma.CheckInUpdateManyWithoutBranchNestedInput
+}
+
+export type BranchUncheckedUpdateWithoutPreferredByUsersInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  address?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  qrCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  checkIns?: Prisma.CheckInUncheckedUpdateManyWithoutBranchNestedInput
+}
+
 export type BranchCreateWithoutCheckInsInput = {
   name: string
   address: string
@@ -423,6 +509,7 @@ export type BranchCreateWithoutCheckInsInput = {
   qrCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredByUsers?: Prisma.UserCreateNestedManyWithoutPreferredBranchInput
 }
 
 export type BranchUncheckedCreateWithoutCheckInsInput = {
@@ -433,6 +520,7 @@ export type BranchUncheckedCreateWithoutCheckInsInput = {
   qrCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredByUsers?: Prisma.UserUncheckedCreateNestedManyWithoutPreferredBranchInput
 }
 
 export type BranchCreateOrConnectWithoutCheckInsInput = {
@@ -458,6 +546,7 @@ export type BranchUpdateWithoutCheckInsInput = {
   qrCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredByUsers?: Prisma.UserUpdateManyWithoutPreferredBranchNestedInput
 }
 
 export type BranchUncheckedUpdateWithoutCheckInsInput = {
@@ -468,6 +557,7 @@ export type BranchUncheckedUpdateWithoutCheckInsInput = {
   qrCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredByUsers?: Prisma.UserUncheckedUpdateManyWithoutPreferredBranchNestedInput
 }
 
 
@@ -477,10 +567,12 @@ export type BranchUncheckedUpdateWithoutCheckInsInput = {
 
 export type BranchCountOutputType = {
   checkIns: number
+  preferredByUsers: number
 }
 
 export type BranchCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   checkIns?: boolean | BranchCountOutputTypeCountCheckInsArgs
+  preferredByUsers?: boolean | BranchCountOutputTypeCountPreferredByUsersArgs
 }
 
 /**
@@ -500,6 +592,13 @@ export type BranchCountOutputTypeCountCheckInsArgs<ExtArgs extends runtime.Types
   where?: Prisma.CheckInWhereInput
 }
 
+/**
+ * BranchCountOutputType without action
+ */
+export type BranchCountOutputTypeCountPreferredByUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserWhereInput
+}
+
 
 export type BranchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -510,6 +609,7 @@ export type BranchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   createdAt?: boolean
   updatedAt?: boolean
   checkIns?: boolean | Prisma.Branch$checkInsArgs<ExtArgs>
+  preferredByUsers?: boolean | Prisma.Branch$preferredByUsersArgs<ExtArgs>
   _count?: boolean | Prisma.BranchCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["branch"]>
 
@@ -546,6 +646,7 @@ export type BranchSelectScalar = {
 export type BranchOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "address" | "phone" | "qrCode" | "createdAt" | "updatedAt", ExtArgs["result"]["branch"]>
 export type BranchInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   checkIns?: boolean | Prisma.Branch$checkInsArgs<ExtArgs>
+  preferredByUsers?: boolean | Prisma.Branch$preferredByUsersArgs<ExtArgs>
   _count?: boolean | Prisma.BranchCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BranchIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -555,6 +656,7 @@ export type $BranchPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   name: "Branch"
   objects: {
     checkIns: Prisma.$CheckInPayload<ExtArgs>[]
+    preferredByUsers: Prisma.$UserPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -959,6 +1061,7 @@ readonly fields: BranchFieldRefs;
 export interface Prisma__BranchClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   checkIns<T extends Prisma.Branch$checkInsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Branch$checkInsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CheckInPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  preferredByUsers<T extends Prisma.Branch$preferredByUsersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Branch$preferredByUsersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1409,6 +1512,30 @@ export type Branch$checkInsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.CheckInScalarFieldEnum | Prisma.CheckInScalarFieldEnum[]
+}
+
+/**
+ * Branch.preferredByUsers
+ */
+export type Branch$preferredByUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+  orderBy?: Prisma.UserOrderByWithRelationInput | Prisma.UserOrderByWithRelationInput[]
+  cursor?: Prisma.UserWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserScalarFieldEnum | Prisma.UserScalarFieldEnum[]
 }
 
 /**

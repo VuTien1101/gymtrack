@@ -266,10 +266,10 @@ export type ExerciseOrderByWithRelationInput = {
 
 export type ExerciseWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  name?: string
   AND?: Prisma.ExerciseWhereInput | Prisma.ExerciseWhereInput[]
   OR?: Prisma.ExerciseWhereInput[]
   NOT?: Prisma.ExerciseWhereInput | Prisma.ExerciseWhereInput[]
-  name?: Prisma.StringFilter<"Exercise"> | string
   muscleGroup?: Prisma.StringFilter<"Exercise"> | string
   description?: Prisma.StringNullableFilter<"Exercise"> | string | null
   instructions?: Prisma.StringNullableFilter<"Exercise"> | string | null
@@ -278,7 +278,7 @@ export type ExerciseWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Exercise"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Exercise"> | Date | string
   workoutExercises?: Prisma.WorkoutExerciseListRelationFilter
-}, "id">
+}, "id" | "name">
 
 export type ExerciseOrderByWithAggregationInput = {
   id?: Prisma.SortOrder

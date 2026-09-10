@@ -43,6 +43,7 @@ export type CheckInMinAggregateOutputType = {
   userId: number | null
   branchId: number | null
   checkedInAt: Date | null
+  checkedOutAt: Date | null
 }
 
 export type CheckInMaxAggregateOutputType = {
@@ -50,6 +51,7 @@ export type CheckInMaxAggregateOutputType = {
   userId: number | null
   branchId: number | null
   checkedInAt: Date | null
+  checkedOutAt: Date | null
 }
 
 export type CheckInCountAggregateOutputType = {
@@ -57,6 +59,7 @@ export type CheckInCountAggregateOutputType = {
   userId: number
   branchId: number
   checkedInAt: number
+  checkedOutAt: number
   _all: number
 }
 
@@ -78,6 +81,7 @@ export type CheckInMinAggregateInputType = {
   userId?: true
   branchId?: true
   checkedInAt?: true
+  checkedOutAt?: true
 }
 
 export type CheckInMaxAggregateInputType = {
@@ -85,6 +89,7 @@ export type CheckInMaxAggregateInputType = {
   userId?: true
   branchId?: true
   checkedInAt?: true
+  checkedOutAt?: true
 }
 
 export type CheckInCountAggregateInputType = {
@@ -92,6 +97,7 @@ export type CheckInCountAggregateInputType = {
   userId?: true
   branchId?: true
   checkedInAt?: true
+  checkedOutAt?: true
   _all?: true
 }
 
@@ -186,6 +192,7 @@ export type CheckInGroupByOutputType = {
   userId: number
   branchId: number
   checkedInAt: Date
+  checkedOutAt: Date | null
   _count: CheckInCountAggregateOutputType | null
   _avg: CheckInAvgAggregateOutputType | null
   _sum: CheckInSumAggregateOutputType | null
@@ -216,6 +223,7 @@ export type CheckInWhereInput = {
   userId?: Prisma.IntFilter<"CheckIn"> | number
   branchId?: Prisma.IntFilter<"CheckIn"> | number
   checkedInAt?: Prisma.DateTimeFilter<"CheckIn"> | Date | string
+  checkedOutAt?: Prisma.DateTimeNullableFilter<"CheckIn"> | Date | string | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   branch?: Prisma.XOR<Prisma.BranchScalarRelationFilter, Prisma.BranchWhereInput>
 }
@@ -225,6 +233,7 @@ export type CheckInOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   branchId?: Prisma.SortOrder
   checkedInAt?: Prisma.SortOrder
+  checkedOutAt?: Prisma.SortOrderInput | Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   branch?: Prisma.BranchOrderByWithRelationInput
 }
@@ -237,6 +246,7 @@ export type CheckInWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.IntFilter<"CheckIn"> | number
   branchId?: Prisma.IntFilter<"CheckIn"> | number
   checkedInAt?: Prisma.DateTimeFilter<"CheckIn"> | Date | string
+  checkedOutAt?: Prisma.DateTimeNullableFilter<"CheckIn"> | Date | string | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   branch?: Prisma.XOR<Prisma.BranchScalarRelationFilter, Prisma.BranchWhereInput>
 }, "id">
@@ -246,6 +256,7 @@ export type CheckInOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   branchId?: Prisma.SortOrder
   checkedInAt?: Prisma.SortOrder
+  checkedOutAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.CheckInCountOrderByAggregateInput
   _avg?: Prisma.CheckInAvgOrderByAggregateInput
   _max?: Prisma.CheckInMaxOrderByAggregateInput
@@ -261,10 +272,12 @@ export type CheckInScalarWhereWithAggregatesInput = {
   userId?: Prisma.IntWithAggregatesFilter<"CheckIn"> | number
   branchId?: Prisma.IntWithAggregatesFilter<"CheckIn"> | number
   checkedInAt?: Prisma.DateTimeWithAggregatesFilter<"CheckIn"> | Date | string
+  checkedOutAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CheckIn"> | Date | string | null
 }
 
 export type CheckInCreateInput = {
   checkedInAt?: Date | string
+  checkedOutAt?: Date | string | null
   user: Prisma.UserCreateNestedOneWithoutCheckInsInput
   branch: Prisma.BranchCreateNestedOneWithoutCheckInsInput
 }
@@ -274,10 +287,12 @@ export type CheckInUncheckedCreateInput = {
   userId: number
   branchId: number
   checkedInAt?: Date | string
+  checkedOutAt?: Date | string | null
 }
 
 export type CheckInUpdateInput = {
   checkedInAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  checkedOutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutCheckInsNestedInput
   branch?: Prisma.BranchUpdateOneRequiredWithoutCheckInsNestedInput
 }
@@ -287,6 +302,7 @@ export type CheckInUncheckedUpdateInput = {
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   branchId?: Prisma.IntFieldUpdateOperationsInput | number
   checkedInAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  checkedOutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CheckInCreateManyInput = {
@@ -294,10 +310,12 @@ export type CheckInCreateManyInput = {
   userId: number
   branchId: number
   checkedInAt?: Date | string
+  checkedOutAt?: Date | string | null
 }
 
 export type CheckInUpdateManyMutationInput = {
   checkedInAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  checkedOutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CheckInUncheckedUpdateManyInput = {
@@ -305,6 +323,7 @@ export type CheckInUncheckedUpdateManyInput = {
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   branchId?: Prisma.IntFieldUpdateOperationsInput | number
   checkedInAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  checkedOutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CheckInListRelationFilter = {
@@ -322,6 +341,7 @@ export type CheckInCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   branchId?: Prisma.SortOrder
   checkedInAt?: Prisma.SortOrder
+  checkedOutAt?: Prisma.SortOrder
 }
 
 export type CheckInAvgOrderByAggregateInput = {
@@ -335,6 +355,7 @@ export type CheckInMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   branchId?: Prisma.SortOrder
   checkedInAt?: Prisma.SortOrder
+  checkedOutAt?: Prisma.SortOrder
 }
 
 export type CheckInMinOrderByAggregateInput = {
@@ -342,6 +363,7 @@ export type CheckInMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   branchId?: Prisma.SortOrder
   checkedInAt?: Prisma.SortOrder
+  checkedOutAt?: Prisma.SortOrder
 }
 
 export type CheckInSumOrderByAggregateInput = {
@@ -436,6 +458,7 @@ export type CheckInUncheckedUpdateManyWithoutBranchNestedInput = {
 
 export type CheckInCreateWithoutUserInput = {
   checkedInAt?: Date | string
+  checkedOutAt?: Date | string | null
   branch: Prisma.BranchCreateNestedOneWithoutCheckInsInput
 }
 
@@ -443,6 +466,7 @@ export type CheckInUncheckedCreateWithoutUserInput = {
   id?: number
   branchId: number
   checkedInAt?: Date | string
+  checkedOutAt?: Date | string | null
 }
 
 export type CheckInCreateOrConnectWithoutUserInput = {
@@ -479,10 +503,12 @@ export type CheckInScalarWhereInput = {
   userId?: Prisma.IntFilter<"CheckIn"> | number
   branchId?: Prisma.IntFilter<"CheckIn"> | number
   checkedInAt?: Prisma.DateTimeFilter<"CheckIn"> | Date | string
+  checkedOutAt?: Prisma.DateTimeNullableFilter<"CheckIn"> | Date | string | null
 }
 
 export type CheckInCreateWithoutBranchInput = {
   checkedInAt?: Date | string
+  checkedOutAt?: Date | string | null
   user: Prisma.UserCreateNestedOneWithoutCheckInsInput
 }
 
@@ -490,6 +516,7 @@ export type CheckInUncheckedCreateWithoutBranchInput = {
   id?: number
   userId: number
   checkedInAt?: Date | string
+  checkedOutAt?: Date | string | null
 }
 
 export type CheckInCreateOrConnectWithoutBranchInput = {
@@ -522,10 +549,12 @@ export type CheckInCreateManyUserInput = {
   id?: number
   branchId: number
   checkedInAt?: Date | string
+  checkedOutAt?: Date | string | null
 }
 
 export type CheckInUpdateWithoutUserInput = {
   checkedInAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  checkedOutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   branch?: Prisma.BranchUpdateOneRequiredWithoutCheckInsNestedInput
 }
 
@@ -533,22 +562,26 @@ export type CheckInUncheckedUpdateWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   branchId?: Prisma.IntFieldUpdateOperationsInput | number
   checkedInAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  checkedOutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CheckInUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   branchId?: Prisma.IntFieldUpdateOperationsInput | number
   checkedInAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  checkedOutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CheckInCreateManyBranchInput = {
   id?: number
   userId: number
   checkedInAt?: Date | string
+  checkedOutAt?: Date | string | null
 }
 
 export type CheckInUpdateWithoutBranchInput = {
   checkedInAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  checkedOutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   user?: Prisma.UserUpdateOneRequiredWithoutCheckInsNestedInput
 }
 
@@ -556,12 +589,14 @@ export type CheckInUncheckedUpdateWithoutBranchInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   checkedInAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  checkedOutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type CheckInUncheckedUpdateManyWithoutBranchInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.IntFieldUpdateOperationsInput | number
   checkedInAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  checkedOutAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -571,6 +606,7 @@ export type CheckInSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   userId?: boolean
   branchId?: boolean
   checkedInAt?: boolean
+  checkedOutAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   branch?: boolean | Prisma.BranchDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["checkIn"]>
@@ -580,6 +616,7 @@ export type CheckInSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   userId?: boolean
   branchId?: boolean
   checkedInAt?: boolean
+  checkedOutAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   branch?: boolean | Prisma.BranchDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["checkIn"]>
@@ -589,6 +626,7 @@ export type CheckInSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   userId?: boolean
   branchId?: boolean
   checkedInAt?: boolean
+  checkedOutAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   branch?: boolean | Prisma.BranchDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["checkIn"]>
@@ -598,9 +636,10 @@ export type CheckInSelectScalar = {
   userId?: boolean
   branchId?: boolean
   checkedInAt?: boolean
+  checkedOutAt?: boolean
 }
 
-export type CheckInOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "branchId" | "checkedInAt", ExtArgs["result"]["checkIn"]>
+export type CheckInOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "branchId" | "checkedInAt" | "checkedOutAt", ExtArgs["result"]["checkIn"]>
 export type CheckInInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   branch?: boolean | Prisma.BranchDefaultArgs<ExtArgs>
@@ -625,6 +664,7 @@ export type $CheckInPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     userId: number
     branchId: number
     checkedInAt: Date
+    checkedOutAt: Date | null
   }, ExtArgs["result"]["checkIn"]>
   composites: {}
 }
@@ -1054,6 +1094,7 @@ export interface CheckInFieldRefs {
   readonly userId: Prisma.FieldRef<"CheckIn", 'Int'>
   readonly branchId: Prisma.FieldRef<"CheckIn", 'Int'>
   readonly checkedInAt: Prisma.FieldRef<"CheckIn", 'DateTime'>
+  readonly checkedOutAt: Prisma.FieldRef<"CheckIn", 'DateTime'>
 }
     
 

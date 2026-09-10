@@ -490,14 +490,6 @@ export type WorkoutUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.WorkoutScalarWhereInput | Prisma.WorkoutScalarWhereInput[]
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type EnumWorkoutStatusFieldUpdateOperationsInput = {
   set?: $Enums.WorkoutStatus
 }

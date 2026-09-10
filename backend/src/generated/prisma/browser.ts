@@ -33,6 +33,11 @@ export type WeightHistory = Prisma.WeightHistoryModel
  */
 export type Exercise = Prisma.ExerciseModel
 /**
+ * Model MembershipPlan
+ * 
+ */
+export type MembershipPlan = Prisma.MembershipPlanModel
+/**
  * Model Workout
  * 
  */

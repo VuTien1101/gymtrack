@@ -32,6 +32,7 @@ export type UserAvgAggregateOutputType = {
   weight: number | null
   muscleMass: number | null
   bodyFat: number | null
+  preferredBranchId: number | null
 }
 
 export type UserSumAggregateOutputType = {
@@ -40,6 +41,7 @@ export type UserSumAggregateOutputType = {
   weight: number | null
   muscleMass: number | null
   bodyFat: number | null
+  preferredBranchId: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -58,6 +60,7 @@ export type UserMinAggregateOutputType = {
   avatarUrl: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  preferredBranchId: number | null
 }
 
 export type UserMaxAggregateOutputType = {
@@ -76,6 +79,7 @@ export type UserMaxAggregateOutputType = {
   avatarUrl: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  preferredBranchId: number | null
 }
 
 export type UserCountAggregateOutputType = {
@@ -94,6 +98,7 @@ export type UserCountAggregateOutputType = {
   avatarUrl: number
   createdAt: number
   updatedAt: number
+  preferredBranchId: number
   _all: number
 }
 
@@ -104,6 +109,7 @@ export type UserAvgAggregateInputType = {
   weight?: true
   muscleMass?: true
   bodyFat?: true
+  preferredBranchId?: true
 }
 
 export type UserSumAggregateInputType = {
@@ -112,6 +118,7 @@ export type UserSumAggregateInputType = {
   weight?: true
   muscleMass?: true
   bodyFat?: true
+  preferredBranchId?: true
 }
 
 export type UserMinAggregateInputType = {
@@ -130,6 +137,7 @@ export type UserMinAggregateInputType = {
   avatarUrl?: true
   createdAt?: true
   updatedAt?: true
+  preferredBranchId?: true
 }
 
 export type UserMaxAggregateInputType = {
@@ -148,6 +156,7 @@ export type UserMaxAggregateInputType = {
   avatarUrl?: true
   createdAt?: true
   updatedAt?: true
+  preferredBranchId?: true
 }
 
 export type UserCountAggregateInputType = {
@@ -166,6 +175,7 @@ export type UserCountAggregateInputType = {
   avatarUrl?: true
   createdAt?: true
   updatedAt?: true
+  preferredBranchId?: true
   _all?: true
 }
 
@@ -271,6 +281,7 @@ export type UserGroupByOutputType = {
   avatarUrl: string | null
   createdAt: Date
   updatedAt: Date
+  preferredBranchId: number | null
   _count: UserCountAggregateOutputType | null
   _avg: UserAvgAggregateOutputType | null
   _sum: UserSumAggregateOutputType | null
@@ -312,11 +323,13 @@ export type UserWhereInput = {
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  preferredBranchId?: Prisma.IntNullableFilter<"User"> | number | null
   weightHistory?: Prisma.WeightHistoryListRelationFilter
   workouts?: Prisma.WorkoutListRelationFilter
   checkIns?: Prisma.CheckInListRelationFilter
   memberships?: Prisma.MembershipListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
+  preferredBranch?: Prisma.XOR<Prisma.BranchNullableScalarRelationFilter, Prisma.BranchWhereInput> | null
 }
 
 export type UserOrderByWithRelationInput = {
@@ -335,11 +348,13 @@ export type UserOrderByWithRelationInput = {
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  preferredBranchId?: Prisma.SortOrderInput | Prisma.SortOrder
   weightHistory?: Prisma.WeightHistoryOrderByRelationAggregateInput
   workouts?: Prisma.WorkoutOrderByRelationAggregateInput
   checkIns?: Prisma.CheckInOrderByRelationAggregateInput
   memberships?: Prisma.MembershipOrderByRelationAggregateInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
+  preferredBranch?: Prisma.BranchOrderByWithRelationInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -361,11 +376,13 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  preferredBranchId?: Prisma.IntNullableFilter<"User"> | number | null
   weightHistory?: Prisma.WeightHistoryListRelationFilter
   workouts?: Prisma.WorkoutListRelationFilter
   checkIns?: Prisma.CheckInListRelationFilter
   memberships?: Prisma.MembershipListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
+  preferredBranch?: Prisma.XOR<Prisma.BranchNullableScalarRelationFilter, Prisma.BranchWhereInput> | null
 }, "id" | "email" | "phone">
 
 export type UserOrderByWithAggregationInput = {
@@ -384,6 +401,7 @@ export type UserOrderByWithAggregationInput = {
   avatarUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  preferredBranchId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
   _avg?: Prisma.UserAvgOrderByAggregateInput
   _max?: Prisma.UserMaxOrderByAggregateInput
@@ -410,6 +428,7 @@ export type UserScalarWhereWithAggregatesInput = {
   avatarUrl?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
+  preferredBranchId?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
 }
 
 export type UserCreateInput = {
@@ -432,6 +451,7 @@ export type UserCreateInput = {
   checkIns?: Prisma.CheckInCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  preferredBranch?: Prisma.BranchCreateNestedOneWithoutPreferredByUsersInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -450,6 +470,7 @@ export type UserUncheckedCreateInput = {
   avatarUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredBranchId?: number | null
   weightHistory?: Prisma.WeightHistoryUncheckedCreateNestedManyWithoutUserInput
   workouts?: Prisma.WorkoutUncheckedCreateNestedManyWithoutUserInput
   checkIns?: Prisma.CheckInUncheckedCreateNestedManyWithoutUserInput
@@ -477,6 +498,7 @@ export type UserUpdateInput = {
   checkIns?: Prisma.CheckInUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  preferredBranch?: Prisma.BranchUpdateOneWithoutPreferredByUsersNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -495,6 +517,7 @@ export type UserUncheckedUpdateInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredBranchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weightHistory?: Prisma.WeightHistoryUncheckedUpdateManyWithoutUserNestedInput
   workouts?: Prisma.WorkoutUncheckedUpdateManyWithoutUserNestedInput
   checkIns?: Prisma.CheckInUncheckedUpdateManyWithoutUserNestedInput
@@ -518,6 +541,7 @@ export type UserCreateManyInput = {
   avatarUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredBranchId?: number | null
 }
 
 export type UserUpdateManyMutationInput = {
@@ -553,6 +577,7 @@ export type UserUncheckedUpdateManyInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredBranchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
 export type UserCountOrderByAggregateInput = {
@@ -571,6 +596,7 @@ export type UserCountOrderByAggregateInput = {
   avatarUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  preferredBranchId?: Prisma.SortOrder
 }
 
 export type UserAvgOrderByAggregateInput = {
@@ -579,6 +605,7 @@ export type UserAvgOrderByAggregateInput = {
   weight?: Prisma.SortOrder
   muscleMass?: Prisma.SortOrder
   bodyFat?: Prisma.SortOrder
+  preferredBranchId?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -597,6 +624,7 @@ export type UserMaxOrderByAggregateInput = {
   avatarUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  preferredBranchId?: Prisma.SortOrder
 }
 
 export type UserMinOrderByAggregateInput = {
@@ -615,6 +643,7 @@ export type UserMinOrderByAggregateInput = {
   avatarUrl?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  preferredBranchId?: Prisma.SortOrder
 }
 
 export type UserSumOrderByAggregateInput = {
@@ -623,11 +652,22 @@ export type UserSumOrderByAggregateInput = {
   weight?: Prisma.SortOrder
   muscleMass?: Prisma.SortOrder
   bodyFat?: Prisma.SortOrder
+  preferredBranchId?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
   is?: Prisma.UserWhereInput
   isNot?: Prisma.UserWhereInput
+}
+
+export type UserListRelationFilter = {
+  every?: Prisma.UserWhereInput
+  some?: Prisma.UserWhereInput
+  none?: Prisma.UserWhereInput
+}
+
+export type UserOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -666,6 +706,14 @@ export type IntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type UserCreateNestedOneWithoutWeightHistoryInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutWeightHistoryInput, Prisma.UserUncheckedCreateWithoutWeightHistoryInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutWeightHistoryInput
@@ -692,6 +740,48 @@ export type UserUpdateOneRequiredWithoutWorkoutsNestedInput = {
   upsert?: Prisma.UserUpsertWithoutWorkoutsInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutWorkoutsInput, Prisma.UserUpdateWithoutWorkoutsInput>, Prisma.UserUncheckedUpdateWithoutWorkoutsInput>
+}
+
+export type UserCreateNestedManyWithoutPreferredBranchInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPreferredBranchInput, Prisma.UserUncheckedCreateWithoutPreferredBranchInput> | Prisma.UserCreateWithoutPreferredBranchInput[] | Prisma.UserUncheckedCreateWithoutPreferredBranchInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPreferredBranchInput | Prisma.UserCreateOrConnectWithoutPreferredBranchInput[]
+  createMany?: Prisma.UserCreateManyPreferredBranchInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUncheckedCreateNestedManyWithoutPreferredBranchInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPreferredBranchInput, Prisma.UserUncheckedCreateWithoutPreferredBranchInput> | Prisma.UserCreateWithoutPreferredBranchInput[] | Prisma.UserUncheckedCreateWithoutPreferredBranchInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPreferredBranchInput | Prisma.UserCreateOrConnectWithoutPreferredBranchInput[]
+  createMany?: Prisma.UserCreateManyPreferredBranchInputEnvelope
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+}
+
+export type UserUpdateManyWithoutPreferredBranchNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPreferredBranchInput, Prisma.UserUncheckedCreateWithoutPreferredBranchInput> | Prisma.UserCreateWithoutPreferredBranchInput[] | Prisma.UserUncheckedCreateWithoutPreferredBranchInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPreferredBranchInput | Prisma.UserCreateOrConnectWithoutPreferredBranchInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutPreferredBranchInput | Prisma.UserUpsertWithWhereUniqueWithoutPreferredBranchInput[]
+  createMany?: Prisma.UserCreateManyPreferredBranchInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutPreferredBranchInput | Prisma.UserUpdateWithWhereUniqueWithoutPreferredBranchInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutPreferredBranchInput | Prisma.UserUpdateManyWithWhereWithoutPreferredBranchInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+}
+
+export type UserUncheckedUpdateManyWithoutPreferredBranchNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPreferredBranchInput, Prisma.UserUncheckedCreateWithoutPreferredBranchInput> | Prisma.UserCreateWithoutPreferredBranchInput[] | Prisma.UserUncheckedCreateWithoutPreferredBranchInput[]
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPreferredBranchInput | Prisma.UserCreateOrConnectWithoutPreferredBranchInput[]
+  upsert?: Prisma.UserUpsertWithWhereUniqueWithoutPreferredBranchInput | Prisma.UserUpsertWithWhereUniqueWithoutPreferredBranchInput[]
+  createMany?: Prisma.UserCreateManyPreferredBranchInputEnvelope
+  set?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  disconnect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  delete?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  connect?: Prisma.UserWhereUniqueInput | Prisma.UserWhereUniqueInput[]
+  update?: Prisma.UserUpdateWithWhereUniqueWithoutPreferredBranchInput | Prisma.UserUpdateWithWhereUniqueWithoutPreferredBranchInput[]
+  updateMany?: Prisma.UserUpdateManyWithWhereWithoutPreferredBranchInput | Prisma.UserUpdateManyWithWhereWithoutPreferredBranchInput[]
+  deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
 }
 
 export type UserCreateNestedOneWithoutCheckInsInput = {
@@ -755,6 +845,7 @@ export type UserCreateWithoutWeightHistoryInput = {
   checkIns?: Prisma.CheckInCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  preferredBranch?: Prisma.BranchCreateNestedOneWithoutPreferredByUsersInput
 }
 
 export type UserUncheckedCreateWithoutWeightHistoryInput = {
@@ -773,6 +864,7 @@ export type UserUncheckedCreateWithoutWeightHistoryInput = {
   avatarUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredBranchId?: number | null
   workouts?: Prisma.WorkoutUncheckedCreateNestedManyWithoutUserInput
   checkIns?: Prisma.CheckInUncheckedCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
@@ -814,6 +906,7 @@ export type UserUpdateWithoutWeightHistoryInput = {
   checkIns?: Prisma.CheckInUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  preferredBranch?: Prisma.BranchUpdateOneWithoutPreferredByUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWeightHistoryInput = {
@@ -832,6 +925,7 @@ export type UserUncheckedUpdateWithoutWeightHistoryInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredBranchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   workouts?: Prisma.WorkoutUncheckedUpdateManyWithoutUserNestedInput
   checkIns?: Prisma.CheckInUncheckedUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
@@ -857,6 +951,7 @@ export type UserCreateWithoutWorkoutsInput = {
   checkIns?: Prisma.CheckInCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  preferredBranch?: Prisma.BranchCreateNestedOneWithoutPreferredByUsersInput
 }
 
 export type UserUncheckedCreateWithoutWorkoutsInput = {
@@ -875,6 +970,7 @@ export type UserUncheckedCreateWithoutWorkoutsInput = {
   avatarUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredBranchId?: number | null
   weightHistory?: Prisma.WeightHistoryUncheckedCreateNestedManyWithoutUserInput
   checkIns?: Prisma.CheckInUncheckedCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
@@ -916,6 +1012,7 @@ export type UserUpdateWithoutWorkoutsInput = {
   checkIns?: Prisma.CheckInUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  preferredBranch?: Prisma.BranchUpdateOneWithoutPreferredByUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWorkoutsInput = {
@@ -934,10 +1031,104 @@ export type UserUncheckedUpdateWithoutWorkoutsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredBranchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weightHistory?: Prisma.WeightHistoryUncheckedUpdateManyWithoutUserNestedInput
   checkIns?: Prisma.CheckInUncheckedUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutPreferredBranchInput = {
+  email: string
+  passwordHash: string
+  fullName: string
+  phone?: string | null
+  address?: string | null
+  dateOfBirth?: Date | string | null
+  gender?: $Enums.Gender | null
+  height?: number | null
+  weight?: number | null
+  muscleMass?: number | null
+  bodyFat?: number | null
+  avatarUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  weightHistory?: Prisma.WeightHistoryCreateNestedManyWithoutUserInput
+  workouts?: Prisma.WorkoutCreateNestedManyWithoutUserInput
+  checkIns?: Prisma.CheckInCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutPreferredBranchInput = {
+  id?: number
+  email: string
+  passwordHash: string
+  fullName: string
+  phone?: string | null
+  address?: string | null
+  dateOfBirth?: Date | string | null
+  gender?: $Enums.Gender | null
+  height?: number | null
+  weight?: number | null
+  muscleMass?: number | null
+  bodyFat?: number | null
+  avatarUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  weightHistory?: Prisma.WeightHistoryUncheckedCreateNestedManyWithoutUserInput
+  workouts?: Prisma.WorkoutUncheckedCreateNestedManyWithoutUserInput
+  checkIns?: Prisma.CheckInUncheckedCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutPreferredBranchInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPreferredBranchInput, Prisma.UserUncheckedCreateWithoutPreferredBranchInput>
+}
+
+export type UserCreateManyPreferredBranchInputEnvelope = {
+  data: Prisma.UserCreateManyPreferredBranchInput | Prisma.UserCreateManyPreferredBranchInput[]
+  skipDuplicates?: boolean
+}
+
+export type UserUpsertWithWhereUniqueWithoutPreferredBranchInput = {
+  where: Prisma.UserWhereUniqueInput
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPreferredBranchInput, Prisma.UserUncheckedUpdateWithoutPreferredBranchInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPreferredBranchInput, Prisma.UserUncheckedCreateWithoutPreferredBranchInput>
+}
+
+export type UserUpdateWithWhereUniqueWithoutPreferredBranchInput = {
+  where: Prisma.UserWhereUniqueInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPreferredBranchInput, Prisma.UserUncheckedUpdateWithoutPreferredBranchInput>
+}
+
+export type UserUpdateManyWithWhereWithoutPreferredBranchInput = {
+  where: Prisma.UserScalarWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateManyMutationInput, Prisma.UserUncheckedUpdateManyWithoutPreferredBranchInput>
+}
+
+export type UserScalarWhereInput = {
+  AND?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+  OR?: Prisma.UserScalarWhereInput[]
+  NOT?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
+  id?: Prisma.IntFilter<"User"> | number
+  email?: Prisma.StringFilter<"User"> | string
+  passwordHash?: Prisma.StringFilter<"User"> | string
+  fullName?: Prisma.StringFilter<"User"> | string
+  phone?: Prisma.StringNullableFilter<"User"> | string | null
+  address?: Prisma.StringNullableFilter<"User"> | string | null
+  dateOfBirth?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  gender?: Prisma.EnumGenderNullableFilter<"User"> | $Enums.Gender | null
+  height?: Prisma.FloatNullableFilter<"User"> | number | null
+  weight?: Prisma.FloatNullableFilter<"User"> | number | null
+  muscleMass?: Prisma.FloatNullableFilter<"User"> | number | null
+  bodyFat?: Prisma.FloatNullableFilter<"User"> | number | null
+  avatarUrl?: Prisma.StringNullableFilter<"User"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  preferredBranchId?: Prisma.IntNullableFilter<"User"> | number | null
 }
 
 export type UserCreateWithoutCheckInsInput = {
@@ -959,6 +1150,7 @@ export type UserCreateWithoutCheckInsInput = {
   workouts?: Prisma.WorkoutCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  preferredBranch?: Prisma.BranchCreateNestedOneWithoutPreferredByUsersInput
 }
 
 export type UserUncheckedCreateWithoutCheckInsInput = {
@@ -977,6 +1169,7 @@ export type UserUncheckedCreateWithoutCheckInsInput = {
   avatarUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredBranchId?: number | null
   weightHistory?: Prisma.WeightHistoryUncheckedCreateNestedManyWithoutUserInput
   workouts?: Prisma.WorkoutUncheckedCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
@@ -1018,6 +1211,7 @@ export type UserUpdateWithoutCheckInsInput = {
   workouts?: Prisma.WorkoutUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  preferredBranch?: Prisma.BranchUpdateOneWithoutPreferredByUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCheckInsInput = {
@@ -1036,6 +1230,7 @@ export type UserUncheckedUpdateWithoutCheckInsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredBranchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weightHistory?: Prisma.WeightHistoryUncheckedUpdateManyWithoutUserNestedInput
   workouts?: Prisma.WorkoutUncheckedUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
@@ -1061,6 +1256,7 @@ export type UserCreateWithoutMembershipsInput = {
   workouts?: Prisma.WorkoutCreateNestedManyWithoutUserInput
   checkIns?: Prisma.CheckInCreateNestedManyWithoutUserInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutUserInput
+  preferredBranch?: Prisma.BranchCreateNestedOneWithoutPreferredByUsersInput
 }
 
 export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -1079,6 +1275,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   avatarUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredBranchId?: number | null
   weightHistory?: Prisma.WeightHistoryUncheckedCreateNestedManyWithoutUserInput
   workouts?: Prisma.WorkoutUncheckedCreateNestedManyWithoutUserInput
   checkIns?: Prisma.CheckInUncheckedCreateNestedManyWithoutUserInput
@@ -1120,6 +1317,7 @@ export type UserUpdateWithoutMembershipsInput = {
   workouts?: Prisma.WorkoutUpdateManyWithoutUserNestedInput
   checkIns?: Prisma.CheckInUpdateManyWithoutUserNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+  preferredBranch?: Prisma.BranchUpdateOneWithoutPreferredByUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -1138,6 +1336,7 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredBranchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   weightHistory?: Prisma.WeightHistoryUncheckedUpdateManyWithoutUserNestedInput
   workouts?: Prisma.WorkoutUncheckedUpdateManyWithoutUserNestedInput
   checkIns?: Prisma.CheckInUncheckedUpdateManyWithoutUserNestedInput
@@ -1163,6 +1362,7 @@ export type UserCreateWithoutNotificationsInput = {
   workouts?: Prisma.WorkoutCreateNestedManyWithoutUserInput
   checkIns?: Prisma.CheckInCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  preferredBranch?: Prisma.BranchCreateNestedOneWithoutPreferredByUsersInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -1181,6 +1381,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   avatarUrl?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  preferredBranchId?: number | null
   weightHistory?: Prisma.WeightHistoryUncheckedCreateNestedManyWithoutUserInput
   workouts?: Prisma.WorkoutUncheckedCreateNestedManyWithoutUserInput
   checkIns?: Prisma.CheckInUncheckedCreateNestedManyWithoutUserInput
@@ -1222,9 +1423,73 @@ export type UserUpdateWithoutNotificationsInput = {
   workouts?: Prisma.WorkoutUpdateManyWithoutUserNestedInput
   checkIns?: Prisma.CheckInUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  preferredBranch?: Prisma.BranchUpdateOneWithoutPreferredByUsersNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  height?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  weight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  muscleMass?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  bodyFat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  preferredBranchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  weightHistory?: Prisma.WeightHistoryUncheckedUpdateManyWithoutUserNestedInput
+  workouts?: Prisma.WorkoutUncheckedUpdateManyWithoutUserNestedInput
+  checkIns?: Prisma.CheckInUncheckedUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateManyPreferredBranchInput = {
+  id?: number
+  email: string
+  passwordHash: string
+  fullName: string
+  phone?: string | null
+  address?: string | null
+  dateOfBirth?: Date | string | null
+  gender?: $Enums.Gender | null
+  height?: number | null
+  weight?: number | null
+  muscleMass?: number | null
+  bodyFat?: number | null
+  avatarUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type UserUpdateWithoutPreferredBranchInput = {
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  height?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  weight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  muscleMass?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  bodyFat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  weightHistory?: Prisma.WeightHistoryUpdateManyWithoutUserNestedInput
+  workouts?: Prisma.WorkoutUpdateManyWithoutUserNestedInput
+  checkIns?: Prisma.CheckInUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPreferredBranchInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1244,6 +1509,25 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   workouts?: Prisma.WorkoutUncheckedUpdateManyWithoutUserNestedInput
   checkIns?: Prisma.CheckInUncheckedUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateManyWithoutPreferredBranchInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  height?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  weight?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  muscleMass?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  bodyFat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  avatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -1329,11 +1613,13 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   avatarUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  preferredBranchId?: boolean
   weightHistory?: boolean | Prisma.User$weightHistoryArgs<ExtArgs>
   workouts?: boolean | Prisma.User$workoutsArgs<ExtArgs>
   checkIns?: boolean | Prisma.User$checkInsArgs<ExtArgs>
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
+  preferredBranch?: boolean | Prisma.User$preferredBranchArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1353,6 +1639,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   avatarUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  preferredBranchId?: boolean
+  preferredBranch?: boolean | Prisma.User$preferredBranchArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1371,6 +1659,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   avatarUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  preferredBranchId?: boolean
+  preferredBranch?: boolean | Prisma.User$preferredBranchArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectScalar = {
@@ -1389,19 +1679,25 @@ export type UserSelectScalar = {
   avatarUrl?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  preferredBranchId?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "fullName" | "phone" | "address" | "dateOfBirth" | "gender" | "height" | "weight" | "muscleMass" | "bodyFat" | "avatarUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "passwordHash" | "fullName" | "phone" | "address" | "dateOfBirth" | "gender" | "height" | "weight" | "muscleMass" | "bodyFat" | "avatarUrl" | "createdAt" | "updatedAt" | "preferredBranchId", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   weightHistory?: boolean | Prisma.User$weightHistoryArgs<ExtArgs>
   workouts?: boolean | Prisma.User$workoutsArgs<ExtArgs>
   checkIns?: boolean | Prisma.User$checkInsArgs<ExtArgs>
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
+  preferredBranch?: boolean | Prisma.User$preferredBranchArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  preferredBranch?: boolean | Prisma.User$preferredBranchArgs<ExtArgs>
+}
+export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  preferredBranch?: boolean | Prisma.User$preferredBranchArgs<ExtArgs>
+}
 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
@@ -1411,6 +1707,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     checkIns: Prisma.$CheckInPayload<ExtArgs>[]
     memberships: Prisma.$MembershipPayload<ExtArgs>[]
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
+    preferredBranch: Prisma.$BranchPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1428,6 +1725,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     avatarUrl: string | null
     createdAt: Date
     updatedAt: Date
+    preferredBranchId: number | null
   }, ExtArgs["result"]["user"]>
   composites: {}
 }
@@ -1827,6 +2125,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   checkIns<T extends Prisma.User$checkInsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$checkInsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CheckInPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   memberships<T extends Prisma.User$membershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  preferredBranch<T extends Prisma.User$preferredBranchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$preferredBranchArgs<ExtArgs>>): Prisma.Prisma__BranchClient<runtime.Types.Result.GetResult<Prisma.$BranchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1871,6 +2170,7 @@ export interface UserFieldRefs {
   readonly avatarUrl: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
+  readonly preferredBranchId: Prisma.FieldRef<"User", 'Int'>
 }
     
 
@@ -2125,6 +2425,10 @@ export type UserCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    */
   data: Prisma.UserCreateManyInput | Prisma.UserCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2195,6 +2499,10 @@ export type UserUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many Users to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2381,6 +2689,25 @@ export type User$notificationsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.NotificationScalarFieldEnum | Prisma.NotificationScalarFieldEnum[]
+}
+
+/**
+ * User.preferredBranch
+ */
+export type User$preferredBranchArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Branch
+   */
+  select?: Prisma.BranchSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Branch
+   */
+  omit?: Prisma.BranchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BranchInclude<ExtArgs> | null
+  where?: Prisma.BranchWhereInput
 }
 
 /**

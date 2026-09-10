@@ -29,16 +29,19 @@ export type AggregateMembership = {
 export type MembershipAvgAggregateOutputType = {
   id: number | null
   userId: number | null
+  planId: number | null
 }
 
 export type MembershipSumAggregateOutputType = {
   id: number | null
   userId: number | null
+  planId: number | null
 }
 
 export type MembershipMinAggregateOutputType = {
   id: number | null
   userId: number | null
+  planId: number | null
   packageName: string | null
   startDate: Date | null
   endDate: Date | null
@@ -50,6 +53,7 @@ export type MembershipMinAggregateOutputType = {
 export type MembershipMaxAggregateOutputType = {
   id: number | null
   userId: number | null
+  planId: number | null
   packageName: string | null
   startDate: Date | null
   endDate: Date | null
@@ -61,6 +65,7 @@ export type MembershipMaxAggregateOutputType = {
 export type MembershipCountAggregateOutputType = {
   id: number
   userId: number
+  planId: number
   packageName: number
   startDate: number
   endDate: number
@@ -74,16 +79,19 @@ export type MembershipCountAggregateOutputType = {
 export type MembershipAvgAggregateInputType = {
   id?: true
   userId?: true
+  planId?: true
 }
 
 export type MembershipSumAggregateInputType = {
   id?: true
   userId?: true
+  planId?: true
 }
 
 export type MembershipMinAggregateInputType = {
   id?: true
   userId?: true
+  planId?: true
   packageName?: true
   startDate?: true
   endDate?: true
@@ -95,6 +103,7 @@ export type MembershipMinAggregateInputType = {
 export type MembershipMaxAggregateInputType = {
   id?: true
   userId?: true
+  planId?: true
   packageName?: true
   startDate?: true
   endDate?: true
@@ -106,6 +115,7 @@ export type MembershipMaxAggregateInputType = {
 export type MembershipCountAggregateInputType = {
   id?: true
   userId?: true
+  planId?: true
   packageName?: true
   startDate?: true
   endDate?: true
@@ -204,6 +214,7 @@ export type MembershipGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 export type MembershipGroupByOutputType = {
   id: number
   userId: number
+  planId: number | null
   packageName: string
   startDate: Date
   endDate: Date
@@ -238,6 +249,7 @@ export type MembershipWhereInput = {
   NOT?: Prisma.MembershipWhereInput | Prisma.MembershipWhereInput[]
   id?: Prisma.IntFilter<"Membership"> | number
   userId?: Prisma.IntFilter<"Membership"> | number
+  planId?: Prisma.IntNullableFilter<"Membership"> | number | null
   packageName?: Prisma.StringFilter<"Membership"> | string
   startDate?: Prisma.DateTimeFilter<"Membership"> | Date | string
   endDate?: Prisma.DateTimeFilter<"Membership"> | Date | string
@@ -245,11 +257,13 @@ export type MembershipWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Membership"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Membership"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  plan?: Prisma.XOR<Prisma.MembershipPlanNullableScalarRelationFilter, Prisma.MembershipPlanWhereInput> | null
 }
 
 export type MembershipOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  planId?: Prisma.SortOrderInput | Prisma.SortOrder
   packageName?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
@@ -257,6 +271,7 @@ export type MembershipOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  plan?: Prisma.MembershipPlanOrderByWithRelationInput
 }
 
 export type MembershipWhereUniqueInput = Prisma.AtLeast<{
@@ -265,6 +280,7 @@ export type MembershipWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.MembershipWhereInput[]
   NOT?: Prisma.MembershipWhereInput | Prisma.MembershipWhereInput[]
   userId?: Prisma.IntFilter<"Membership"> | number
+  planId?: Prisma.IntNullableFilter<"Membership"> | number | null
   packageName?: Prisma.StringFilter<"Membership"> | string
   startDate?: Prisma.DateTimeFilter<"Membership"> | Date | string
   endDate?: Prisma.DateTimeFilter<"Membership"> | Date | string
@@ -272,11 +288,13 @@ export type MembershipWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Membership"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Membership"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  plan?: Prisma.XOR<Prisma.MembershipPlanNullableScalarRelationFilter, Prisma.MembershipPlanWhereInput> | null
 }, "id">
 
 export type MembershipOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  planId?: Prisma.SortOrderInput | Prisma.SortOrder
   packageName?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
@@ -296,6 +314,7 @@ export type MembershipScalarWhereWithAggregatesInput = {
   NOT?: Prisma.MembershipScalarWhereWithAggregatesInput | Prisma.MembershipScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Membership"> | number
   userId?: Prisma.IntWithAggregatesFilter<"Membership"> | number
+  planId?: Prisma.IntNullableWithAggregatesFilter<"Membership"> | number | null
   packageName?: Prisma.StringWithAggregatesFilter<"Membership"> | string
   startDate?: Prisma.DateTimeWithAggregatesFilter<"Membership"> | Date | string
   endDate?: Prisma.DateTimeWithAggregatesFilter<"Membership"> | Date | string
@@ -312,11 +331,13 @@ export type MembershipCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutMembershipsInput
+  plan?: Prisma.MembershipPlanCreateNestedOneWithoutMembershipsInput
 }
 
 export type MembershipUncheckedCreateInput = {
   id?: number
   userId: number
+  planId?: number | null
   packageName: string
   startDate: Date | string
   endDate: Date | string
@@ -333,11 +354,13 @@ export type MembershipUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutMembershipsNestedInput
+  plan?: Prisma.MembershipPlanUpdateOneWithoutMembershipsNestedInput
 }
 
 export type MembershipUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packageName?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -349,6 +372,7 @@ export type MembershipUncheckedUpdateInput = {
 export type MembershipCreateManyInput = {
   id?: number
   userId: number
+  planId?: number | null
   packageName: string
   startDate: Date | string
   endDate: Date | string
@@ -369,6 +393,7 @@ export type MembershipUpdateManyMutationInput = {
 export type MembershipUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packageName?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -390,6 +415,7 @@ export type MembershipOrderByRelationAggregateInput = {
 export type MembershipCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  planId?: Prisma.SortOrder
   packageName?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
@@ -401,11 +427,13 @@ export type MembershipCountOrderByAggregateInput = {
 export type MembershipAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  planId?: Prisma.SortOrder
 }
 
 export type MembershipMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  planId?: Prisma.SortOrder
   packageName?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
@@ -417,6 +445,7 @@ export type MembershipMaxOrderByAggregateInput = {
 export type MembershipMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  planId?: Prisma.SortOrder
   packageName?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
@@ -428,6 +457,7 @@ export type MembershipMinOrderByAggregateInput = {
 export type MembershipSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  planId?: Prisma.SortOrder
 }
 
 export type MembershipCreateNestedManyWithoutUserInput = {
@@ -472,6 +502,48 @@ export type MembershipUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.MembershipScalarWhereInput | Prisma.MembershipScalarWhereInput[]
 }
 
+export type MembershipCreateNestedManyWithoutPlanInput = {
+  create?: Prisma.XOR<Prisma.MembershipCreateWithoutPlanInput, Prisma.MembershipUncheckedCreateWithoutPlanInput> | Prisma.MembershipCreateWithoutPlanInput[] | Prisma.MembershipUncheckedCreateWithoutPlanInput[]
+  connectOrCreate?: Prisma.MembershipCreateOrConnectWithoutPlanInput | Prisma.MembershipCreateOrConnectWithoutPlanInput[]
+  createMany?: Prisma.MembershipCreateManyPlanInputEnvelope
+  connect?: Prisma.MembershipWhereUniqueInput | Prisma.MembershipWhereUniqueInput[]
+}
+
+export type MembershipUncheckedCreateNestedManyWithoutPlanInput = {
+  create?: Prisma.XOR<Prisma.MembershipCreateWithoutPlanInput, Prisma.MembershipUncheckedCreateWithoutPlanInput> | Prisma.MembershipCreateWithoutPlanInput[] | Prisma.MembershipUncheckedCreateWithoutPlanInput[]
+  connectOrCreate?: Prisma.MembershipCreateOrConnectWithoutPlanInput | Prisma.MembershipCreateOrConnectWithoutPlanInput[]
+  createMany?: Prisma.MembershipCreateManyPlanInputEnvelope
+  connect?: Prisma.MembershipWhereUniqueInput | Prisma.MembershipWhereUniqueInput[]
+}
+
+export type MembershipUpdateManyWithoutPlanNestedInput = {
+  create?: Prisma.XOR<Prisma.MembershipCreateWithoutPlanInput, Prisma.MembershipUncheckedCreateWithoutPlanInput> | Prisma.MembershipCreateWithoutPlanInput[] | Prisma.MembershipUncheckedCreateWithoutPlanInput[]
+  connectOrCreate?: Prisma.MembershipCreateOrConnectWithoutPlanInput | Prisma.MembershipCreateOrConnectWithoutPlanInput[]
+  upsert?: Prisma.MembershipUpsertWithWhereUniqueWithoutPlanInput | Prisma.MembershipUpsertWithWhereUniqueWithoutPlanInput[]
+  createMany?: Prisma.MembershipCreateManyPlanInputEnvelope
+  set?: Prisma.MembershipWhereUniqueInput | Prisma.MembershipWhereUniqueInput[]
+  disconnect?: Prisma.MembershipWhereUniqueInput | Prisma.MembershipWhereUniqueInput[]
+  delete?: Prisma.MembershipWhereUniqueInput | Prisma.MembershipWhereUniqueInput[]
+  connect?: Prisma.MembershipWhereUniqueInput | Prisma.MembershipWhereUniqueInput[]
+  update?: Prisma.MembershipUpdateWithWhereUniqueWithoutPlanInput | Prisma.MembershipUpdateWithWhereUniqueWithoutPlanInput[]
+  updateMany?: Prisma.MembershipUpdateManyWithWhereWithoutPlanInput | Prisma.MembershipUpdateManyWithWhereWithoutPlanInput[]
+  deleteMany?: Prisma.MembershipScalarWhereInput | Prisma.MembershipScalarWhereInput[]
+}
+
+export type MembershipUncheckedUpdateManyWithoutPlanNestedInput = {
+  create?: Prisma.XOR<Prisma.MembershipCreateWithoutPlanInput, Prisma.MembershipUncheckedCreateWithoutPlanInput> | Prisma.MembershipCreateWithoutPlanInput[] | Prisma.MembershipUncheckedCreateWithoutPlanInput[]
+  connectOrCreate?: Prisma.MembershipCreateOrConnectWithoutPlanInput | Prisma.MembershipCreateOrConnectWithoutPlanInput[]
+  upsert?: Prisma.MembershipUpsertWithWhereUniqueWithoutPlanInput | Prisma.MembershipUpsertWithWhereUniqueWithoutPlanInput[]
+  createMany?: Prisma.MembershipCreateManyPlanInputEnvelope
+  set?: Prisma.MembershipWhereUniqueInput | Prisma.MembershipWhereUniqueInput[]
+  disconnect?: Prisma.MembershipWhereUniqueInput | Prisma.MembershipWhereUniqueInput[]
+  delete?: Prisma.MembershipWhereUniqueInput | Prisma.MembershipWhereUniqueInput[]
+  connect?: Prisma.MembershipWhereUniqueInput | Prisma.MembershipWhereUniqueInput[]
+  update?: Prisma.MembershipUpdateWithWhereUniqueWithoutPlanInput | Prisma.MembershipUpdateWithWhereUniqueWithoutPlanInput[]
+  updateMany?: Prisma.MembershipUpdateManyWithWhereWithoutPlanInput | Prisma.MembershipUpdateManyWithWhereWithoutPlanInput[]
+  deleteMany?: Prisma.MembershipScalarWhereInput | Prisma.MembershipScalarWhereInput[]
+}
+
 export type EnumMembershipStatusFieldUpdateOperationsInput = {
   set?: $Enums.MembershipStatus
 }
@@ -483,10 +555,12 @@ export type MembershipCreateWithoutUserInput = {
   status?: $Enums.MembershipStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  plan?: Prisma.MembershipPlanCreateNestedOneWithoutMembershipsInput
 }
 
 export type MembershipUncheckedCreateWithoutUserInput = {
   id?: number
+  planId?: number | null
   packageName: string
   startDate: Date | string
   endDate: Date | string
@@ -527,6 +601,7 @@ export type MembershipScalarWhereInput = {
   NOT?: Prisma.MembershipScalarWhereInput | Prisma.MembershipScalarWhereInput[]
   id?: Prisma.IntFilter<"Membership"> | number
   userId?: Prisma.IntFilter<"Membership"> | number
+  planId?: Prisma.IntNullableFilter<"Membership"> | number | null
   packageName?: Prisma.StringFilter<"Membership"> | string
   startDate?: Prisma.DateTimeFilter<"Membership"> | Date | string
   endDate?: Prisma.DateTimeFilter<"Membership"> | Date | string
@@ -535,8 +610,56 @@ export type MembershipScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Membership"> | Date | string
 }
 
+export type MembershipCreateWithoutPlanInput = {
+  packageName: string
+  startDate: Date | string
+  endDate: Date | string
+  status?: $Enums.MembershipStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutMembershipsInput
+}
+
+export type MembershipUncheckedCreateWithoutPlanInput = {
+  id?: number
+  userId: number
+  packageName: string
+  startDate: Date | string
+  endDate: Date | string
+  status?: $Enums.MembershipStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type MembershipCreateOrConnectWithoutPlanInput = {
+  where: Prisma.MembershipWhereUniqueInput
+  create: Prisma.XOR<Prisma.MembershipCreateWithoutPlanInput, Prisma.MembershipUncheckedCreateWithoutPlanInput>
+}
+
+export type MembershipCreateManyPlanInputEnvelope = {
+  data: Prisma.MembershipCreateManyPlanInput | Prisma.MembershipCreateManyPlanInput[]
+  skipDuplicates?: boolean
+}
+
+export type MembershipUpsertWithWhereUniqueWithoutPlanInput = {
+  where: Prisma.MembershipWhereUniqueInput
+  update: Prisma.XOR<Prisma.MembershipUpdateWithoutPlanInput, Prisma.MembershipUncheckedUpdateWithoutPlanInput>
+  create: Prisma.XOR<Prisma.MembershipCreateWithoutPlanInput, Prisma.MembershipUncheckedCreateWithoutPlanInput>
+}
+
+export type MembershipUpdateWithWhereUniqueWithoutPlanInput = {
+  where: Prisma.MembershipWhereUniqueInput
+  data: Prisma.XOR<Prisma.MembershipUpdateWithoutPlanInput, Prisma.MembershipUncheckedUpdateWithoutPlanInput>
+}
+
+export type MembershipUpdateManyWithWhereWithoutPlanInput = {
+  where: Prisma.MembershipScalarWhereInput
+  data: Prisma.XOR<Prisma.MembershipUpdateManyMutationInput, Prisma.MembershipUncheckedUpdateManyWithoutPlanInput>
+}
+
 export type MembershipCreateManyUserInput = {
   id?: number
+  planId?: number | null
   packageName: string
   startDate: Date | string
   endDate: Date | string
@@ -552,10 +675,12 @@ export type MembershipUpdateWithoutUserInput = {
   status?: Prisma.EnumMembershipStatusFieldUpdateOperationsInput | $Enums.MembershipStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  plan?: Prisma.MembershipPlanUpdateOneWithoutMembershipsNestedInput
 }
 
 export type MembershipUncheckedUpdateWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   packageName?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -566,6 +691,50 @@ export type MembershipUncheckedUpdateWithoutUserInput = {
 
 export type MembershipUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  planId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  packageName?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumMembershipStatusFieldUpdateOperationsInput | $Enums.MembershipStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type MembershipCreateManyPlanInput = {
+  id?: number
+  userId: number
+  packageName: string
+  startDate: Date | string
+  endDate: Date | string
+  status?: $Enums.MembershipStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type MembershipUpdateWithoutPlanInput = {
+  packageName?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumMembershipStatusFieldUpdateOperationsInput | $Enums.MembershipStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutMembershipsNestedInput
+}
+
+export type MembershipUncheckedUpdateWithoutPlanInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  packageName?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumMembershipStatusFieldUpdateOperationsInput | $Enums.MembershipStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type MembershipUncheckedUpdateManyWithoutPlanInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
   packageName?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -579,6 +748,7 @@ export type MembershipUncheckedUpdateManyWithoutUserInput = {
 export type MembershipSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
+  planId?: boolean
   packageName?: boolean
   startDate?: boolean
   endDate?: boolean
@@ -586,11 +756,13 @@ export type MembershipSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  plan?: boolean | Prisma.Membership$planArgs<ExtArgs>
 }, ExtArgs["result"]["membership"]>
 
 export type MembershipSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
+  planId?: boolean
   packageName?: boolean
   startDate?: boolean
   endDate?: boolean
@@ -598,11 +770,13 @@ export type MembershipSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  plan?: boolean | Prisma.Membership$planArgs<ExtArgs>
 }, ExtArgs["result"]["membership"]>
 
 export type MembershipSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
+  planId?: boolean
   packageName?: boolean
   startDate?: boolean
   endDate?: boolean
@@ -610,11 +784,13 @@ export type MembershipSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  plan?: boolean | Prisma.Membership$planArgs<ExtArgs>
 }, ExtArgs["result"]["membership"]>
 
 export type MembershipSelectScalar = {
   id?: boolean
   userId?: boolean
+  planId?: boolean
   packageName?: boolean
   startDate?: boolean
   endDate?: boolean
@@ -623,25 +799,30 @@ export type MembershipSelectScalar = {
   updatedAt?: boolean
 }
 
-export type MembershipOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "packageName" | "startDate" | "endDate" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["membership"]>
+export type MembershipOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "planId" | "packageName" | "startDate" | "endDate" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["membership"]>
 export type MembershipInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  plan?: boolean | Prisma.Membership$planArgs<ExtArgs>
 }
 export type MembershipIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  plan?: boolean | Prisma.Membership$planArgs<ExtArgs>
 }
 export type MembershipIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  plan?: boolean | Prisma.Membership$planArgs<ExtArgs>
 }
 
 export type $MembershipPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Membership"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    plan: Prisma.$MembershipPlanPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     userId: number
+    planId: number | null
     packageName: string
     startDate: Date
     endDate: Date
@@ -1043,6 +1224,7 @@ readonly fields: MembershipFieldRefs;
 export interface Prisma__MembershipClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  plan<T extends Prisma.Membership$planArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Membership$planArgs<ExtArgs>>): Prisma.Prisma__MembershipPlanClient<runtime.Types.Result.GetResult<Prisma.$MembershipPlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1074,6 +1256,7 @@ export interface Prisma__MembershipClient<T, Null = never, ExtArgs extends runti
 export interface MembershipFieldRefs {
   readonly id: Prisma.FieldRef<"Membership", 'Int'>
   readonly userId: Prisma.FieldRef<"Membership", 'Int'>
+  readonly planId: Prisma.FieldRef<"Membership", 'Int'>
   readonly packageName: Prisma.FieldRef<"Membership", 'String'>
   readonly startDate: Prisma.FieldRef<"Membership", 'DateTime'>
   readonly endDate: Prisma.FieldRef<"Membership", 'DateTime'>
@@ -1478,6 +1661,25 @@ export type MembershipDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Limit how many Memberships to delete.
    */
   limit?: number
+}
+
+/**
+ * Membership.plan
+ */
+export type Membership$planArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the MembershipPlan
+   */
+  select?: Prisma.MembershipPlanSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the MembershipPlan
+   */
+  omit?: Prisma.MembershipPlanOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MembershipPlanInclude<ExtArgs> | null
+  where?: Prisma.MembershipPlanWhereInput
 }
 
 /**

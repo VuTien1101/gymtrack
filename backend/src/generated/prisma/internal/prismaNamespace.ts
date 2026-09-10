@@ -400,6 +400,7 @@ export const ModelName = {
   User: 'User',
   WeightHistory: 'WeightHistory',
   Exercise: 'Exercise',
+  MembershipPlan: 'MembershipPlan',
   Workout: 'Workout',
   WorkoutExercise: 'WorkoutExercise',
   Branch: 'Branch',
@@ -421,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "weightHistory" | "exercise" | "workout" | "workoutExercise" | "branch" | "checkIn" | "membership" | "notification"
+    modelProps: "user" | "weightHistory" | "exercise" | "membershipPlan" | "workout" | "workoutExercise" | "branch" | "checkIn" | "membership" | "notification"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -644,6 +645,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ExerciseCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ExerciseCountAggregateOutputType> | number
+        }
+      }
+    }
+    MembershipPlan: {
+      payload: Prisma.$MembershipPlanPayload<ExtArgs>
+      fields: Prisma.MembershipPlanFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MembershipPlanFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipPlanPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MembershipPlanFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipPlanPayload>
+        }
+        findFirst: {
+          args: Prisma.MembershipPlanFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipPlanPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MembershipPlanFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipPlanPayload>
+        }
+        findMany: {
+          args: Prisma.MembershipPlanFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipPlanPayload>[]
+        }
+        create: {
+          args: Prisma.MembershipPlanCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipPlanPayload>
+        }
+        createMany: {
+          args: Prisma.MembershipPlanCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MembershipPlanCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipPlanPayload>[]
+        }
+        delete: {
+          args: Prisma.MembershipPlanDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipPlanPayload>
+        }
+        update: {
+          args: Prisma.MembershipPlanUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipPlanPayload>
+        }
+        deleteMany: {
+          args: Prisma.MembershipPlanDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MembershipPlanUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MembershipPlanUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipPlanPayload>[]
+        }
+        upsert: {
+          args: Prisma.MembershipPlanUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MembershipPlanPayload>
+        }
+        aggregate: {
+          args: Prisma.MembershipPlanAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMembershipPlan>
+        }
+        groupBy: {
+          args: Prisma.MembershipPlanGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MembershipPlanGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MembershipPlanCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MembershipPlanCountAggregateOutputType> | number
         }
       }
     }
@@ -1145,7 +1220,8 @@ export const UserScalarFieldEnum = {
   bodyFat: 'bodyFat',
   avatarUrl: 'avatarUrl',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  preferredBranchId: 'preferredBranchId'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -1175,6 +1251,20 @@ export const ExerciseScalarFieldEnum = {
 } as const
 
 export type ExerciseScalarFieldEnum = (typeof ExerciseScalarFieldEnum)[keyof typeof ExerciseScalarFieldEnum]
+
+
+export const MembershipPlanScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  durationDays: 'durationDays',
+  price: 'price',
+  description: 'description',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MembershipPlanScalarFieldEnum = (typeof MembershipPlanScalarFieldEnum)[keyof typeof MembershipPlanScalarFieldEnum]
 
 
 export const WorkoutScalarFieldEnum = {
@@ -1221,7 +1311,8 @@ export const CheckInScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   branchId: 'branchId',
-  checkedInAt: 'checkedInAt'
+  checkedInAt: 'checkedInAt',
+  checkedOutAt: 'checkedOutAt'
 } as const
 
 export type CheckInScalarFieldEnum = (typeof CheckInScalarFieldEnum)[keyof typeof CheckInScalarFieldEnum]
@@ -1230,6 +1321,7 @@ export type CheckInScalarFieldEnum = (typeof CheckInScalarFieldEnum)[keyof typeo
 export const MembershipScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  planId: 'planId',
   packageName: 'packageName',
   startDate: 'startDate',
   endDate: 'endDate',
@@ -1355,6 +1447,13 @@ export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMode
 
 
 /**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
  * Reference to a field of type 'WorkoutStatus'
  */
 export type EnumWorkoutStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'WorkoutStatus'>
@@ -1393,13 +1492,6 @@ export type EnumNotificationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<
  * Reference to a field of type 'NotificationType[]'
  */
 export type ListEnumNotificationTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'NotificationType[]'>
-    
-
-
-/**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 /**
@@ -1556,6 +1648,7 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   weightHistory?: Prisma.WeightHistoryOmit
   exercise?: Prisma.ExerciseOmit
+  membershipPlan?: Prisma.MembershipPlanOmit
   workout?: Prisma.WorkoutOmit
   workoutExercise?: Prisma.WorkoutExerciseOmit
   branch?: Prisma.BranchOmit

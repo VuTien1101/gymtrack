@@ -54,6 +54,7 @@ export const ModelName = {
   User: 'User',
   WeightHistory: 'WeightHistory',
   Exercise: 'Exercise',
+  MembershipPlan: 'MembershipPlan',
   Workout: 'Workout',
   WorkoutExercise: 'WorkoutExercise',
   Branch: 'Branch',
@@ -93,7 +94,8 @@ export const UserScalarFieldEnum = {
   bodyFat: 'bodyFat',
   avatarUrl: 'avatarUrl',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  preferredBranchId: 'preferredBranchId'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -123,6 +125,20 @@ export const ExerciseScalarFieldEnum = {
 } as const
 
 export type ExerciseScalarFieldEnum = (typeof ExerciseScalarFieldEnum)[keyof typeof ExerciseScalarFieldEnum]
+
+
+export const MembershipPlanScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  durationDays: 'durationDays',
+  price: 'price',
+  description: 'description',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MembershipPlanScalarFieldEnum = (typeof MembershipPlanScalarFieldEnum)[keyof typeof MembershipPlanScalarFieldEnum]
 
 
 export const WorkoutScalarFieldEnum = {
@@ -169,7 +185,8 @@ export const CheckInScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   branchId: 'branchId',
-  checkedInAt: 'checkedInAt'
+  checkedInAt: 'checkedInAt',
+  checkedOutAt: 'checkedOutAt'
 } as const
 
 export type CheckInScalarFieldEnum = (typeof CheckInScalarFieldEnum)[keyof typeof CheckInScalarFieldEnum]
@@ -178,6 +195,7 @@ export type CheckInScalarFieldEnum = (typeof CheckInScalarFieldEnum)[keyof typeo
 export const MembershipScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  planId: 'planId',
   packageName: 'packageName',
   startDate: 'startDate',
   endDate: 'endDate',

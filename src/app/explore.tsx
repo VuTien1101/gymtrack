@@ -1,17 +1,27 @@
 import {
-  faChevronRight,
-  faDumbbell,
-  faMagnifyingGlass,
-  faXmark,
+    faChevronLeft, // <-- THÊM ICON
+    faChevronRight,
+    faDumbbell,
+    faMagnifyingGlass,
+    faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { useMemo, useState } from "react";
-import { FlatList, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { Link } from "expo-router"; // <-- THÊM DÒNG NÀY
+import { useEffect, useMemo, useState } from "react";
+import {
+    FlatList,
+    Pressable,
+    RefreshControl,
+    StyleSheet,
+    TextInput,
+    View,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useTheme } from "@/hooks/use-theme";
+import { api } from "../lib/api";
 
 const muscleGroups = ["Tất cả", "Ngực", "Lưng", "Vai", "Chân", "Tay", "Core"];
 
@@ -96,9 +106,32 @@ export default function ExploreScreen() {
 
   const [search, setSearch] = useState("");
   const [selectedMuscle, setSelectedMuscle] = useState("Tất cả");
+  const [refreshing, setRefreshing] = useState(false);
+  const [exerciseItems, setExerciseItems] = useState(exercises);
+
+  useEffect(() => {
+    api
+      .getExercises()
+      .then((result) =>
+        setExerciseItems(
+          result.exercises.map((item) => ({
+            ...item,
+            id: String(item.id),
+            muscle: item.muscleGroup,
+            description: item.description ?? "",
+          })),
+        ),
+      )
+      .catch(console.error);
+  }, []);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 600);
+  };
 
   const filteredExercises = useMemo(() => {
-    return exercises.filter((exercise) => {
+    return exerciseItems.filter((exercise) => {
       const matchMuscle =
         selectedMuscle === "Tất cả" || exercise.muscle === selectedMuscle;
 
@@ -108,7 +141,7 @@ export default function ExploreScreen() {
 
       return matchMuscle && matchSearch;
     });
-  }, [search, selectedMuscle]);
+  }, [exerciseItems, search, selectedMuscle]);
 
   return (
     <ThemedView style={styles.container}>
@@ -116,8 +149,16 @@ export default function ExploreScreen() {
         data={filteredExercises}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
-        overScrollMode="never"
-        bounces={false}
+        overScrollMode="always"
+        bounces
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor={theme.text as string}
+            colors={[theme.text as string]}
+          />
+        }
         contentContainerStyle={[
           styles.content,
           {
@@ -129,6 +170,17 @@ export default function ExploreScreen() {
           <>
             {/* Header */}
             <View style={styles.header}>
+              {/* Nút Quay Ve Index */}
+              <Link href="/" asChild>
+                <Pressable style={styles.backButton} hitSlop={10}>
+                  <FontAwesomeIcon
+                    icon={faChevronLeft}
+                    size={18}
+                    color={theme.text as string}
+                  />
+                </Pressable>
+              </Link>
+
               <View>
                 <ThemedText style={styles.title}>Khám phá bài tập</ThemedText>
                 <ThemedText
@@ -293,12 +345,24 @@ const styles = StyleSheet.create({
 
   header: {
     paddingBottom: 16,
+    flexDirection: "row", // Sắp xếp nút quay về và tiêu đề nằm ngang hoặc dọc tùy bạn
+    alignItems: "center",
+    gap: 12,
+  },
+
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   title: {
     fontSize: 28,
     fontWeight: "800",
     letterSpacing: -0.5,
+    paddingTop: 10,
   },
 
   subtitle: {
@@ -355,7 +419,7 @@ const styles = StyleSheet.create({
   },
 
   exerciseCard: {
-    borderRadius: 18,
+    borderRadius: 16,
     padding: 14,
     marginBottom: 10,
     flexDirection: "row",

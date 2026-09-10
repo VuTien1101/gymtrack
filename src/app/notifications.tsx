@@ -1,17 +1,26 @@
 import {
-  faBell,
-  faCalendarDays,
-  faCheckDouble,
-  faChevronRight,
-  faCircleExclamation,
-  faDumbbell,
-  faFire,
-  faTriangleExclamation,
+    faBell,
+    faCalendarDays,
+    faCheckDouble,
+    faChevronRight,
+    faCircleExclamation,
+    faDumbbell,
+    faFire,
+    faTriangleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
+import {
+    Pressable,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { api } from "../lib/api";
 
 const initialNotifications = [
   {
@@ -65,11 +74,45 @@ const initialNotifications = [
 
 export default function NotificationsScreen() {
   const [items, setItems] = useState(initialNotifications);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadNotifications = useCallback(async () => {
+    try {
+      const result = await api.getNotifications();
+      setItems(
+        result.notifications.map((item) => ({
+          ...item,
+          id: String(item.id),
+          type: item.type.toLowerCase(),
+          icon: faCircleExclamation,
+          time: new Date(item.createdAt).toLocaleDateString("vi-VN"),
+          unread: !item.isRead,
+        })),
+      );
+    } catch (error) {
+      console.error("Load notifications error:", error);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadNotifications();
+    }, [loadNotifications]),
+  );
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => setRefreshing(false), 600);
+  };
 
   const unreadCount = items.filter((item) => item.unread).length;
 
   const handleMarkAllRead = () => {
-    setItems((prev) => prev.map((item) => ({ ...item, unread: false })));
+    api
+      .markAllNotificationsRead()
+      .then(() =>
+        setItems((prev) => prev.map((item) => ({ ...item, unread: false }))),
+      );
   };
 
   const getIconStyle = (type: string) => {
@@ -92,8 +135,16 @@ export default function NotificationsScreen() {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
-        overScrollMode="never"
-        bounces={false}
+        overScrollMode="always"
+        bounces
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+            tintColor="#111827"
+            colors={["#111827"]}
+          />
+        }
       >
         {/* Header */}
         <View style={styles.header}>
@@ -296,7 +347,7 @@ const styles = StyleSheet.create({
 
   notificationCard: {
     backgroundColor: "#FFFFFF",
-    borderRadius: 20,
+    borderRadius: 16,
     padding: 16,
     flexDirection: "row",
     alignItems: "center",

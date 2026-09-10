@@ -59,6 +59,8 @@ model User {
   checkIns      CheckIn[]
   memberships   Membership[]
   notifications Notification[]
+  preferredBranchId Int?
+  preferredBranch   Branch? @relation("PreferredBranch", fields: [preferredBranchId], references: [id], onDelete: SetNull)
 
   @@map("users")
 }
@@ -80,7 +82,7 @@ model WeightHistory {
 
 model Exercise {
   id           Int      @id @default(autoincrement())
-  name         String
+  name         String   @unique
   muscleGroup  String
   description  String?
   instructions String?
@@ -94,6 +96,21 @@ model Exercise {
 
   @@index([muscleGroup])
   @@map("exercises")
+}
+
+model MembershipPlan {
+  id           Int      @id @default(autoincrement())
+  name         String   @unique
+  durationDays Int
+  price        Int
+  description  String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships Membership[]
+
+  @@map("membership_plans")
 }
 
 model Workout {
@@ -144,6 +161,7 @@ model Branch {
   updatedAt DateTime @updatedAt
 
   checkIns CheckIn[]
+  preferredByUsers User[] @relation("PreferredBranch")
 
   @@map("branches")
 }
@@ -153,19 +171,22 @@ model CheckIn {
   userId   Int
   branchId Int
 
-  checkedInAt DateTime @default(now())
+  checkedInAt  DateTime  @default(now())
+  checkedOutAt DateTime?
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   branch Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
 
   @@index([userId, checkedInAt])
   @@index([branchId, checkedInAt])
+  @@index([branchId, checkedOutAt])
   @@map("check_ins")
 }
 
 model Membership {
   id        Int @id @default(autoincrement())
   userId    Int
+  planId    Int?
 
   packageName String
   startDate   DateTime
@@ -176,6 +197,7 @@ model Membership {
   updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan MembershipPlan? @relation(fields: [planId], references: [id], onDelete: SetNull)
 
   @@index([userId, endDate])
   @@map("memberships")

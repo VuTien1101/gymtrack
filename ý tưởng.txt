@@ -2,6 +2,10 @@
 chi tiết bài tập
 bấm vào ngày đã tập hiện hôm đó tập gì
 quên mk => gửi otp về sđt
+đk tk => gửi otp về sđt
+đk tk thành công => gửi về mail
+mua gói thành công => gửi hóa đơn về mail
+bấm mua gói/gia hạn => tạo mã QR
 
 
 

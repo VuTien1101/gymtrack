@@ -11,6 +11,7 @@
 export type * from './models/User'
 export type * from './models/WeightHistory'
 export type * from './models/Exercise'
+export type * from './models/MembershipPlan'
 export type * from './models/Workout'
 export type * from './models/WorkoutExercise'
 export type * from './models/Branch'

@@ -1,35 +1,44 @@
 import {
-  faCalendar,
-  faChevronRight,
-  faDumbbell,
-  faEnvelope,
-  faGear,
-  faLocationDot,
-  faLock,
-  faPhone,
-  faRightFromBracket,
-  faRulerVertical,
-  faUser,
-  faVenusMars,
-  faWeightScale,
+    faCalendar,
+    faChevronRight,
+    faDumbbell,
+    faEnvelope,
+    faGear,
+    faLocationDot,
+    faLock,
+    faPhone,
+    faRightFromBracket,
+    faRulerVertical,
+    faUser,
+    faVenusMars,
+    faWeightScale,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { router, useFocusEffect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useCallback, useMemo, useState } from "react";
+import { API_URL, TOKEN_KEY } from "../lib/api";
 
 import {
-  Alert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    Alert,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 
-const API_URL = "http://192.168.88.173:5000";
-const TOKEN_KEY = "gymtrack_token";
+function calculateAge(dateOfBirth: Date) {
+  const today = new Date();
+  let result = today.getFullYear() - dateOfBirth.getFullYear();
+  const birthdayHasPassed =
+    today.getMonth() > dateOfBirth.getMonth() ||
+    (today.getMonth() === dateOfBirth.getMonth() &&
+      today.getDate() >= dateOfBirth.getDate());
+  if (!birthdayHasPassed) result -= 1;
+  return result;
+}
 
 export default function ProfileScreen() {
   const [isEditing, setIsEditing] = useState(false);
@@ -118,7 +127,7 @@ export default function ProfileScreen() {
           ).padStart(2, "0")}/${date.getFullYear()}`,
         );
 
-        setAge((new Date().getFullYear() - date.getFullYear()).toString());
+        setAge(calculateAge(date).toString());
       }
     } catch (error) {
       console.error("Fetch profile error:", error);
@@ -343,9 +352,8 @@ export default function ProfileScreen() {
               <Text style={styles.inputLabel}>Tuổi</Text>
               <TextInput
                 value={age}
-                onChangeText={setAge}
-                keyboardType="number-pad"
-                style={styles.input}
+                editable={false}
+                style={[styles.input, styles.readOnlyInput]}
               />
             </View>
           </View>
@@ -740,6 +748,10 @@ const styles = StyleSheet.create({
     color: "#111827",
     fontSize: 14,
     fontWeight: "600",
+  },
+  readOnlyInput: {
+    color: "#6B7280",
+    backgroundColor: "#E5E7EB",
   },
   genderRow: {
     flexDirection: "row",

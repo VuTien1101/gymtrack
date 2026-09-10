@@ -163,3 +163,102 @@ export async function updateMe(req: AuthRequest, res: Response) {
     });
   }
 }
+
+export async function getDashboard(req: AuthRequest, res: Response) {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+    const [user, membership, activeCheckIn, monthlyCheckIns, latestCheckIn] =
+      await Promise.all([
+        prisma.user.findUnique({
+          where: { id: userId },
+          include: { preferredBranch: true },
+        }),
+        prisma.membership.findFirst({
+          where: { userId, status: "ACTIVE", endDate: { gte: now } },
+          orderBy: { createdAt: "desc" },
+        }),
+        prisma.checkIn.findFirst({
+          where: { userId, checkedOutAt: null },
+          include: { branch: true },
+        }),
+        prisma.checkIn.findMany({
+          where: {
+            userId,
+            checkedInAt: { gte: monthStart, lt: nextMonthStart },
+          },
+          select: { checkedInAt: true, checkedOutAt: true },
+          orderBy: { checkedInAt: "desc" },
+        }),
+        prisma.checkIn.findFirst({
+          where: { userId },
+          include: { branch: true },
+          orderBy: { checkedInAt: "desc" },
+        }),
+      ]);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Không tìm thấy người dùng" });
+    }
+
+    const selectedBranch = user.preferredBranch ?? latestCheckIn?.branch;
+    const activeCount = selectedBranch
+      ? await prisma.checkIn.count({
+          where: { branchId: selectedBranch.id, checkedOutAt: null },
+        })
+      : 0;
+
+    const totalMinutes = monthlyCheckIns.reduce((total, checkIn) => {
+      const end = checkIn.checkedOutAt ?? now;
+      return (
+        total +
+        Math.max(0, end.getTime() - checkIn.checkedInAt.getTime()) / 60000
+      );
+    }, 0);
+
+    const workoutDays = new Set(
+      monthlyCheckIns.map((checkIn) =>
+        checkIn.checkedInAt.toISOString().slice(0, 10),
+      ),
+    );
+    let streak = 0;
+    const cursor = new Date();
+    cursor.setHours(0, 0, 0, 0);
+    if (!workoutDays.has(cursor.toISOString().slice(0, 10))) {
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    while (workoutDays.has(cursor.toISOString().slice(0, 10))) {
+      streak += 1;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        user,
+        membership,
+        activeCheckIn,
+        branch: selectedBranch ?? null,
+        branchActiveCount: activeCount,
+        stats: {
+          checkInCount: workoutDays.size,
+          workoutDays: workoutDays.size,
+          streak,
+          totalMinutes: Math.round(totalMinutes),
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Get dashboard error:", error);
+    return res.status(500).json({ success: false, message: "Lỗi server" });
+  }
+}
