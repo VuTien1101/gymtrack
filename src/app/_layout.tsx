@@ -197,6 +197,10 @@ export default function RootLayout() {
             name="branches"
             options={{ href: null, tabBarStyle: { display: "none" } }}
           />
+          <Tabs.Screen
+            name="scan"
+            options={{ href: null, tabBarStyle: { display: "none" } }}
+          />
         </Tabs>
       </EdgeSwipeBack>
     </GestureHandlerRootView>

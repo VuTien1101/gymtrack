@@ -67,6 +67,23 @@ describe("GymTrack API", () => {
     assert.equal(response.body.data.user.email, testEmail);
   });
 
+  it("rejects invalid login credentials", async () => {
+    const response = await request(app)
+      .post("/api/auth/login")
+      .send({ email: testEmail, password: "wrong-password" });
+
+    assert.equal(response.status, 401);
+  });
+
+  it("lists the authenticated user's memberships", async () => {
+    const response = await request(app)
+      .get("/api/memberships/me")
+      .set("Authorization", `Bearer ${token}`);
+
+    assert.equal(response.status, 200);
+    assert.equal(response.body.data.memberships.length, 1);
+  });
+
   it("creates a check-in and blocks a duplicate active check-in", async () => {
     const response = await request(app)
       .post("/api/check-ins")
@@ -101,7 +118,29 @@ describe("GymTrack API", () => {
     assert.equal(history.body.data.checkIns.length, 1);
   });
 
+  it("checks in and checks out by branch QR code", async () => {
+    const branch = await prisma.branch.findUnique({ where: { id: branchId } });
+    assert.ok(branch);
+
+    const scannedIn = await request(app)
+      .post("/api/check-ins/scan")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ qrCode: branch.qrCode });
+
+    assert.equal(scannedIn.status, 201);
+    assert.equal(scannedIn.body.data.action, "check-in");
+
+    const scannedOut = await request(app)
+      .post("/api/check-ins/scan")
+      .set("Authorization", `Bearer ${token}`)
+      .send({ qrCode: branch.qrCode });
+
+    assert.equal(scannedOut.status, 200);
+    assert.equal(scannedOut.body.data.action, "check-out");
+  });
+
   after(async () => {
+    await prisma.notification.deleteMany({ where: { userId } });
     await prisma.checkIn.deleteMany({ where: { userId } });
     await prisma.membership.deleteMany({ where: { userId } });
     await prisma.branch.delete({ where: { id: branchId } });

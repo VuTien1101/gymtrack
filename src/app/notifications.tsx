@@ -1,79 +1,35 @@
 import {
-    faBell,
-    faCalendarDays,
-    faCheckDouble,
-    faChevronRight,
-    faCircleExclamation,
-    faDumbbell,
-    faFire,
-    faTriangleExclamation,
+  faBell,
+  faCheckDouble,
+  faChevronRight,
+  faCircleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
-    Pressable,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { api } from "../lib/api";
 
-const initialNotifications = [
-  {
-    id: "1",
-    type: "warning",
-    icon: faTriangleExclamation,
-    title: "Gói tập sắp hết hạn",
-    message:
-      "Gói Premium của bạn sẽ hết hạn vào ngày 30/09/2026. Hãy gia hạn để duy trì tập luyện.",
-    time: "2 giờ trước",
-    unread: true,
-  },
-  {
-    id: "2",
-    type: "workout",
-    icon: faDumbbell,
-    title: "Đến giờ tập rồi!",
-    message: "Hôm nay là ngày tập Cardio & Leg Day. Đừng bỏ lỡ buổi tập nhé.",
-    time: "5 giờ trước",
-    unread: true,
-  },
-  {
-    id: "3",
-    type: "achievement",
-    icon: faFire,
-    title: "Streak 4 ngày 🔥",
-    message: "Bạn vừa đạt mốc 4 ngày tập liên tiếp. Giữ vững phong độ!",
-    time: "Hôm qua",
-    unread: true,
-  },
-  {
-    id: "4",
-    type: "calendar",
-    icon: faCalendarDays,
-    title: "Lịch tập tuần này",
-    message: "Bạn có 4 buổi tập đã được lên lịch trong tuần này.",
-    time: "2 ngày trước",
-    unread: false,
-  },
-  {
-    id: "5",
-    type: "system",
-    icon: faCircleExclamation,
-    title: "Thông báo từ phòng gym",
-    message:
-      "Chi nhánh Nguyễn Văn Linh sẽ bảo trì khu vực máy chạy bộ vào ngày 15/09.",
-    time: "3 ngày trước",
-    unread: false,
-  },
-];
-
 export default function NotificationsScreen() {
-  const [items, setItems] = useState(initialNotifications);
+  const [items, setItems] = useState<
+    {
+      id: string;
+      type: string;
+      title: string;
+      message: string;
+      time: string;
+      unread: boolean;
+      icon: typeof faCircleExclamation;
+    }[]
+  >([]);
   const [refreshing, setRefreshing] = useState(false);
 
   const loadNotifications = useCallback(async () => {

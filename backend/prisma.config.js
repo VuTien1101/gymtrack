@@ -6,6 +6,7 @@ module.exports = defineConfig({
 
   migrations: {
     path: "prisma/migrations",
+    seed: "tsx prisma/seed.ts",
   },
 
   datasource: {

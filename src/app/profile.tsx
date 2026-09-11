@@ -54,7 +54,7 @@ export default function ProfileScreen() {
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
-  const [memberId] = useState("GYM-2026-00128");
+  const [memberId, setMemberId] = useState("");
   const [bodyFat, setBodyFat] = useState("");
 
   const resetProfileState = () => {
@@ -103,6 +103,7 @@ export default function ProfileScreen() {
 
       const user = result.data.user;
 
+      setMemberId(`GYM-${String(user.id).padStart(6, "0")}`);
       setName(user.fullName || "");
       setEmail(user.email || "");
       setPhone(user.phone || "");
@@ -306,7 +307,7 @@ export default function ProfileScreen() {
           <Text style={styles.memberId}>ID: {memberId}</Text>
 
           <View style={styles.memberBadge}>
-            <Text style={styles.memberBadgeText}>PREMIUM MEMBER</Text>
+            <Text style={styles.memberBadgeText}>HỘI VIÊN</Text>
           </View>
         </View>
       </View>

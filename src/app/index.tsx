@@ -13,8 +13,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
-  Alert,
-  Modal,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -23,14 +21,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import Animated, {
-  interpolate,
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { api, Dashboard } from "../lib/api";
 
@@ -40,7 +30,6 @@ export default function HomeScreen() {
   const [showBranches, setShowBranches] = useState(false);
   const [branchQuery, setBranchQuery] = useState("");
   const [branches, setBranches] = useState<import("../lib/api").Branch[]>([]);
-  const sheetTranslationY = useSharedValue(0);
   const [weekCheckIns, setWeekCheckIns] = useState<
     import("../lib/api").CheckIn[]
   >([]);
@@ -82,55 +71,6 @@ export default function HomeScreen() {
 
   const closeBranchSheet = () => {
     setShowBranches(false);
-    sheetTranslationY.value = 0;
-  };
-
-  const sheetGesture = Gesture.Pan()
-    .activeOffsetY(12)
-    .failOffsetX([-24, 24])
-    .onUpdate((event) => {
-      sheetTranslationY.value = Math.max(0, event.translationY);
-    })
-    .onEnd(() => {
-      if (sheetTranslationY.value > 120) {
-        runOnJS(closeBranchSheet)();
-      } else {
-        sheetTranslationY.value = withSpring(0, {
-          damping: 20,
-          stiffness: 220,
-        });
-      }
-    });
-
-  const sheetStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: sheetTranslationY.value }],
-  }));
-
-  const sheetBackdropStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(sheetTranslationY.value, [0, 360], [1, 0.35]),
-  }));
-
-  const handleCheckInToggle = async () => {
-    try {
-      if (dashboard?.activeCheckIn) {
-        await api.checkout(dashboard.activeCheckIn.id);
-      } else if (dashboard?.branch) {
-        await api.createCheckIn(dashboard.branch.id);
-      } else {
-        Alert.alert(
-          "Chưa có chi nhánh",
-          "Bạn cần chọn chi nhánh trước khi check-in.",
-        );
-        return;
-      }
-
-      await loadDashboard();
-    } catch (error) {
-      Alert.alert(
-        "Không thể cập nhật check-in",
-        error instanceof Error ? error.message : "Vui lòng thử lại",
-      );
-    }
   };
 
   const membership = dashboard?.membership;
@@ -243,13 +183,12 @@ export default function HomeScreen() {
         {/* Quick Actions (Check-in & Explore Gym) */}
         <View style={styles.quickActionsContainer}>
           <Pressable
-            onPress={handleCheckInToggle}
+            onPress={() => router.push({ pathname: "/scan" } as never)}
             style={({ pressed }) => [
               styles.actionButtonPrimary,
               pressed && styles.pressed,
             ]}
           >
-            {/* GIỮ NGUYÊN BACKGROUND TRẮNG CHO QR */}
             <View style={styles.actionIconPrimary}>
               <FontAwesomeIcon icon={faQrcode} size={18} color="#111827" />
             </View>
@@ -259,8 +198,8 @@ export default function HomeScreen() {
               </Text>
               <Text style={styles.actionSubtitlePrimary}>
                 {dashboard?.activeCheckIn
-                  ? "Kết thúc buổi tập"
-                  : "Bắt đầu buổi tập"}
+                  ? `Đang tập tại ${dashboard.activeCheckIn.branch.name}`
+                  : "Quét mã tại quầy để bắt đầu"}
               </Text>
             </View>
           </Pressable>
@@ -315,81 +254,6 @@ export default function HomeScreen() {
             <Text style={styles.peopleLabel}>người đang tập</Text>
           </View>
         </Pressable>
-
-        <Modal
-          visible={showBranches}
-          transparent
-          animationType="fade"
-          onRequestClose={closeBranchSheet}
-        >
-          <View style={styles.branchSheetOverlay}>
-            <Animated.View
-              pointerEvents="box-none"
-              style={[styles.branchSheetBackdrop, sheetBackdropStyle]}
-            >
-              <Pressable
-                style={styles.branchSheetBackdropPressable}
-                onPress={closeBranchSheet}
-              />
-            </Animated.View>
-            <GestureDetector gesture={sheetGesture}>
-              <Animated.View style={[styles.branchSheet, sheetStyle]}>
-                <View style={styles.sheetHandle} />
-                <Text style={styles.sheetTitle}>Chi nhánh</Text>
-                <TextInput
-                  value={branchQuery}
-                  onChangeText={setBranchQuery}
-                  placeholder="Tìm kiếm chi nhánh"
-                  placeholderTextColor="#9CA3AF"
-                  style={styles.branchSearch}
-                />
-                <Animated.ScrollView
-                  showsVerticalScrollIndicator={false}
-                  style={styles.branchOptions}
-                >
-                  {branches
-                    .filter((branch) =>
-                      `${branch.name} ${branch.address}`
-                        .toLowerCase()
-                        .includes(branchQuery.toLowerCase()),
-                    )
-                    .map((branch) => (
-                      <Pressable
-                        key={branch.id}
-                        style={styles.branchOption}
-                        onPress={async () => {
-                          await api.setPreferredBranch(branch.id);
-                          closeBranchSheet();
-                          await loadDashboard();
-                        }}
-                      >
-                        <FontAwesomeIcon
-                          icon={faLocationDot}
-                          size={18}
-                          color="#111827"
-                        />
-                        <View style={styles.branchOptionInfo}>
-                          <Text style={styles.branchOptionName}>
-                            {branch.name}
-                          </Text>
-                          <View style={styles.branchPhoneRow}>
-                            <FontAwesomeIcon
-                              icon={faPhone}
-                              size={11}
-                              color="#6B7280"
-                            />
-                            <Text style={styles.branchOptionPhone}>
-                              {branch.phone || "Chưa cập nhật số điện thoại"}
-                            </Text>
-                          </View>
-                        </View>
-                      </Pressable>
-                    ))}
-                </Animated.ScrollView>
-              </Animated.View>
-            </GestureDetector>
-          </View>
-        </Modal>
 
         {/* Monthly Statistics */}
         <Text style={styles.sectionTitleStandalone}>Thống kê tháng 9</Text>
@@ -479,6 +343,68 @@ export default function HomeScreen() {
           </View>
         </View>
       </ScrollView>
+
+      {showBranches && (
+        <View style={styles.branchSheetOverlay}>
+          <Pressable
+            style={styles.branchSheetBackdrop}
+            onPress={closeBranchSheet}
+          />
+          <View style={styles.branchSheet}>
+            <View style={styles.sheetHandle} />
+            <Text style={styles.sheetTitle}>Chi nhánh</Text>
+            <TextInput
+              value={branchQuery}
+              onChangeText={setBranchQuery}
+              placeholder="Tìm kiếm chi nhánh"
+              placeholderTextColor="#9CA3AF"
+              style={styles.branchSearch}
+            />
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={styles.branchOptions}
+              nestedScrollEnabled
+            >
+              {branches
+                .filter((branch) =>
+                  `${branch.name} ${branch.address}`
+                    .toLowerCase()
+                    .includes(branchQuery.toLowerCase()),
+                )
+                .map((branch) => (
+                  <Pressable
+                    key={branch.id}
+                    style={styles.branchOption}
+                    onPress={async () => {
+                      await api.setPreferredBranch(branch.id);
+                      closeBranchSheet();
+                      await loadDashboard();
+                    }}
+                  >
+                    <FontAwesomeIcon
+                      icon={faLocationDot}
+                      size={18}
+                      color="#111827"
+                    />
+                    <View style={styles.branchOptionInfo}>
+                      <Text style={styles.branchOptionName}>{branch.name}</Text>
+                      <View style={styles.branchPhoneRow}>
+                        <FontAwesomeIcon
+                          icon={faPhone}
+                          size={11}
+                          color="#6B7280"
+                        />
+                        <Text style={styles.branchOptionPhone}>
+                          {branch.phone || "Chưa cập nhật số điện thoại"}
+                        </Text>
+                      </View>
+                    </View>
+                  </Pressable>
+                ))}
+            </ScrollView>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 }

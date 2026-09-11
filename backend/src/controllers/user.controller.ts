@@ -1,5 +1,6 @@
 import { Response } from "express";
 import { prisma } from "../lib/prisma";
+import { calculateStreak } from "../lib/streak";
 import { AuthRequest } from "../middleware/auth.middleware";
 
 // GET CURRENT USER
@@ -175,34 +176,44 @@ export async function getDashboard(req: AuthRequest, res: Response) {
     const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
     const nextMonthStart = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-    const [user, membership, activeCheckIn, monthlyCheckIns, latestCheckIn] =
-      await Promise.all([
-        prisma.user.findUnique({
-          where: { id: userId },
-          include: { preferredBranch: true },
-        }),
-        prisma.membership.findFirst({
-          where: { userId, status: "ACTIVE", endDate: { gte: now } },
-          orderBy: { createdAt: "desc" },
-        }),
-        prisma.checkIn.findFirst({
-          where: { userId, checkedOutAt: null },
-          include: { branch: true },
-        }),
-        prisma.checkIn.findMany({
-          where: {
-            userId,
-            checkedInAt: { gte: monthStart, lt: nextMonthStart },
-          },
-          select: { checkedInAt: true, checkedOutAt: true },
-          orderBy: { checkedInAt: "desc" },
-        }),
-        prisma.checkIn.findFirst({
-          where: { userId },
-          include: { branch: true },
-          orderBy: { checkedInAt: "desc" },
-        }),
-      ]);
+    const [
+      user,
+      membership,
+      activeCheckIn,
+      monthlyCheckIns,
+      latestCheckIn,
+      allCheckIns,
+    ] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        include: { preferredBranch: true },
+      }),
+      prisma.membership.findFirst({
+        where: { userId, status: "ACTIVE", endDate: { gte: now } },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.checkIn.findFirst({
+        where: { userId, checkedOutAt: null },
+        include: { branch: true },
+      }),
+      prisma.checkIn.findMany({
+        where: {
+          userId,
+          checkedInAt: { gte: monthStart, lt: nextMonthStart },
+        },
+        select: { checkedInAt: true, checkedOutAt: true },
+        orderBy: { checkedInAt: "desc" },
+      }),
+      prisma.checkIn.findFirst({
+        where: { userId },
+        include: { branch: true },
+        orderBy: { checkedInAt: "desc" },
+      }),
+      prisma.checkIn.findMany({
+        where: { userId },
+        select: { checkedInAt: true },
+      }),
+    ]);
 
     if (!user) {
       return res
@@ -230,16 +241,9 @@ export async function getDashboard(req: AuthRequest, res: Response) {
         checkIn.checkedInAt.toISOString().slice(0, 10),
       ),
     );
-    let streak = 0;
-    const cursor = new Date();
-    cursor.setHours(0, 0, 0, 0);
-    if (!workoutDays.has(cursor.toISOString().slice(0, 10))) {
-      cursor.setDate(cursor.getDate() - 1);
-    }
-    while (workoutDays.has(cursor.toISOString().slice(0, 10))) {
-      streak += 1;
-      cursor.setDate(cursor.getDate() - 1);
-    }
+    const streak = calculateStreak(
+      allCheckIns.map((checkIn) => checkIn.checkedInAt),
+    );
 
     return res.status(200).json({
       success: true,

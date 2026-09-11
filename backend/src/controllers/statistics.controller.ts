@@ -1,5 +1,6 @@
 import { Response } from "express";
 import { prisma } from "../lib/prisma";
+import { calculateStreak } from "../lib/streak";
 import { AuthRequest } from "../middleware/auth.middleware";
 
 export async function getMonthlyStatistics(req: AuthRequest, res: Response) {
@@ -18,6 +19,10 @@ export async function getMonthlyStatistics(req: AuthRequest, res: Response) {
     where: { userId: req.user.userId, checkedInAt: { gte: from, lt: to } },
     include: { branch: true },
     orderBy: { checkedInAt: "asc" },
+  });
+  const allCheckIns = await prisma.checkIn.findMany({
+    where: { userId: req.user.userId },
+    select: { checkedInAt: true },
   });
 
   const now = new Date();
@@ -43,18 +48,7 @@ export async function getMonthlyStatistics(req: AuthRequest, res: Response) {
     branchCounts.set(item.branchId, current);
   }
 
-  let streak = 0;
-  const cursor = new Date(year, month + 1, 0);
-  cursor.setHours(0, 0, 0, 0);
-  if (!days.has(cursor.toISOString().slice(0, 10))) {
-    cursor.setDate(cursor.getDate() - 1);
-  }
-  while (true) {
-    const key = cursor.toISOString().slice(0, 10);
-    if (!days.has(key)) break;
-    streak += 1;
-    cursor.setDate(cursor.getDate() - 1);
-  }
+  const streak = calculateStreak(allCheckIns.map((item) => item.checkedInAt));
 
   const usualHour =
     [...hourCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;

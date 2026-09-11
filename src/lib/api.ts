@@ -1,6 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 
-export const API_URL = "http://192.168.88.143:5000";
+export const API_URL = "http://192.168.88.174:5000";
 export const TOKEN_KEY = "gymtrack_token";
 export const USER_KEY = "gymtrack_user";
 
@@ -48,6 +48,15 @@ export type MembershipPlan = {
   durationDays: number;
   price: number;
   description: string | null;
+};
+
+export type Membership = {
+  id: number;
+  packageName: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  plan: MembershipPlan | null;
 };
 
 export type Branch = {
@@ -137,8 +146,18 @@ export const api = {
     request<{ checkIn: CheckIn }>(`/api/check-ins/${id}/checkout`, {
       method: "POST",
     }),
+  scanCheckIn: (qrCode: string) =>
+    request<{ action: "check-in" | "check-out"; checkIn: CheckIn }>(
+      "/api/check-ins/scan",
+      {
+        method: "POST",
+        body: JSON.stringify({ qrCode }),
+      },
+    ),
   getPlans: () =>
     request<{ plans: MembershipPlan[] }>("/api/memberships/plans"),
+  getMemberships: () =>
+    request<{ memberships: Membership[] }>("/api/memberships/me"),
   subscribe: (planId: number) =>
     request<{ membership: unknown }>("/api/memberships/subscribe", {
       method: "POST",

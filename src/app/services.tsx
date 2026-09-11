@@ -1,7 +1,8 @@
-import { faCheck, faCrown, faStar } from "@fortawesome/free-solid-svg-icons";
+import { faCheck } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { useEffect, useState } from "react";
 import {
+  Alert,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -15,11 +16,22 @@ import { api, MembershipPlan } from "../lib/api";
 export default function ServicesScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [plans, setPlans] = useState<MembershipPlan[]>([]);
+  const [currentMembership, setCurrentMembership] = useState<
+    Awaited<ReturnType<typeof api.getMemberships>>["memberships"][number] | null
+  >(null);
 
   const loadPlans = async () => {
     try {
       const result = await api.getPlans();
       setPlans(result.plans);
+      const memberships = await api.getMemberships();
+      setCurrentMembership(
+        memberships.memberships.find(
+          (membership) =>
+            membership.status === "ACTIVE" &&
+            new Date(membership.endDate).getTime() >= Date.now(),
+        ) ?? null,
+      );
     } catch (error) {
       console.error("Load plans error:", error);
     }
@@ -57,6 +69,19 @@ export default function ServicesScreen() {
             Nâng cấp hội viên để trải nghiệm tốt nhất
           </Text>
         </View>
+
+        {currentMembership && (
+          <View style={styles.currentMembership}>
+            <Text style={styles.currentMembershipLabel}>GÓI ĐANG SỬ DỤNG</Text>
+            <Text style={styles.currentMembershipName}>
+              {currentMembership.packageName}
+            </Text>
+            <Text style={styles.currentMembershipDate}>
+              Hết hạn{" "}
+              {new Date(currentMembership.endDate).toLocaleDateString("vi-VN")}
+            </Text>
+          </View>
+        )}
 
         {plans.map((plan, index) => (
           <View
@@ -115,8 +140,16 @@ export default function ServicesScreen() {
               onPress={() =>
                 api
                   .subscribe(plan.id)
-                  .then(() => alert("Đăng ký gói thành công"))
-                  .catch((error) => alert(error.message))
+                  .then(() => {
+                    Alert.alert(
+                      "Đăng ký thành công",
+                      "Gói tập đã được cập nhật.",
+                    );
+                    loadPlans();
+                  })
+                  .catch((error) =>
+                    Alert.alert("Không thể đăng ký", error.message),
+                  )
               }
               style={({ pressed }) => [
                 styles.actionButton,
@@ -128,93 +161,6 @@ export default function ServicesScreen() {
             </Pressable>
           </View>
         ))}
-        {false && (
-          <View style={[styles.membershipCard, styles.luxuryCard]}>
-            <View style={styles.cardHeader}>
-              <View style={styles.goldBadge}>
-                <FontAwesomeIcon icon={faCrown} size={10} color="#000000" />
-                <Text style={styles.goldBadgeText}>PHỔ BIẾN NHẤT</Text>
-              </View>
-
-              <View style={styles.bonusBadge}>
-                <FontAwesomeIcon icon={faStar} size={9} color="#F59E0B" />
-                <Text style={styles.bonusText}>TẶNG 1 THÁNG (120 NGÀY)</Text>
-              </View>
-            </View>
-
-            <Text style={[styles.planName, styles.luxuryPlanName]}>
-              Pro Ultimate 3+1
-            </Text>
-
-            <View style={styles.priceContainer}>
-              <Text style={[styles.priceText, styles.luxuryPriceText]}>
-                899.000
-              </Text>
-              <Text style={[styles.currencyText, styles.luxuryCurrencyText]}>
-                {" "}
-                VNĐ / 4 tháng
-              </Text>
-            </View>
-
-            <View style={[styles.divider, styles.luxuryDivider]} />
-
-            {/* Danh sách quyền lợi Luxury */}
-            <View style={styles.featureList}>
-              <View style={styles.featureRow}>
-                <FontAwesomeIcon icon={faCheck} size={13} color="#F59E0B" />
-                <Text style={[styles.featureText, styles.luxuryFeatureText]}>
-                  Tập luyện{" "}
-                  <Text style={styles.highlightText}>
-                    toàn bộ liên chi nhánh
-                  </Text>
-                </Text>
-              </View>
-              <View style={styles.featureRow}>
-                <FontAwesomeIcon icon={faCheck} size={13} color="#F59E0B" />
-                <Text style={[styles.featureText, styles.luxuryFeatureText]}>
-                  Locker ưu tiên +{" "}
-                  <Text style={styles.highlightText}>
-                    Miễn phí mượn khăn hàng ngày
-                  </Text>
-                </Text>
-              </View>
-              <View style={styles.featureRow}>
-                <FontAwesomeIcon icon={faCheck} size={13} color="#F59E0B" />
-                <Text style={[styles.featureText, styles.luxuryFeatureText]}>
-                  03 buổi đo InBody định kỳ hàng tháng
-                </Text>
-              </View>
-              <View style={styles.featureRow}>
-                <FontAwesomeIcon icon={faCheck} size={13} color="#F59E0B" />
-                <Text style={[styles.featureText, styles.luxuryFeatureText]}>
-                  03 buổi tập 1-on-1 chuyên sâu cùng PT
-                </Text>
-              </View>
-              <View style={styles.featureRow}>
-                <FontAwesomeIcon icon={faCheck} size={13} color="#F59E0B" />
-                <Text style={[styles.featureText, styles.luxuryFeatureText]}>
-                  Voucher ưu đãi Whey / Creatine
-                </Text>
-              </View>
-              <View style={styles.featureRow}>
-                <FontAwesomeIcon icon={faCheck} size={13} color="#F59E0B" />
-                <Text style={[styles.featureText, styles.luxuryFeatureText]}>
-                  Bảo lưu gói tập linh hoạt đến 30 ngày
-                </Text>
-              </View>
-            </View>
-
-            <Pressable
-              style={({ pressed }) => [
-                styles.actionButton,
-                styles.luxuryButton,
-                pressed && styles.pressed,
-              ]}
-            >
-              <Text style={styles.luxuryButtonText}>Nâng cấp Premium</Text>
-            </Pressable>
-          </View>
-        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -253,6 +199,36 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#6B7280",
     fontWeight: "500",
+    marginTop: 4,
+  },
+
+  currentMembership: {
+    marginHorizontal: 20,
+    marginBottom: 16,
+    padding: 16,
+    borderRadius: 14,
+    backgroundColor: "#ECFDF5",
+    borderWidth: 1,
+    borderColor: "#A7F3D0",
+  },
+
+  currentMembershipLabel: {
+    color: "#047857",
+    fontSize: 10,
+    fontWeight: "800",
+    letterSpacing: 1,
+  },
+
+  currentMembershipName: {
+    color: "#064E3B",
+    fontSize: 18,
+    fontWeight: "800",
+    marginTop: 6,
+  },
+
+  currentMembershipDate: {
+    color: "#047857",
+    fontSize: 13,
     marginTop: 4,
   },
 

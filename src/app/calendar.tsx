@@ -15,7 +15,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { api, CheckIn, Workout } from "../lib/api";
+import { api, Branch, CheckIn, Workout } from "../lib/api";
 
 const WEEK_DAYS = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
 
@@ -34,6 +34,8 @@ export default function CalendarScreen() {
   );
   const [refreshing, setRefreshing] = useState(false);
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [selectedBranchId, setSelectedBranchId] = useState<number | null>(null);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [statistics, setStatistics] = useState<Awaited<
     ReturnType<typeof api.getStatistics>
@@ -49,6 +51,8 @@ export default function CalendarScreen() {
       const to = new Date(year, month + 1, 1).toISOString();
       const result = await api.getCheckIns(from, to);
       setCheckIns(result.checkIns);
+      const branchResult = await api.getBranches();
+      setBranches(branchResult.branches);
       const workoutResult = await api.getWorkouts(from, to);
       setWorkouts(workoutResult.workouts);
       const statisticResult = await api.getStatistics(
@@ -112,15 +116,38 @@ export default function CalendarScreen() {
   };
 
   const isWorkoutDay = (day: number) => {
-    return checkIns.some(
+    return visibleCheckIns.some(
       (checkIn) =>
         checkIn.checkedInAt.slice(0, 10) === formatDate(year, month, day),
     );
   };
 
   const workoutCount = new Set(
-    checkIns.map((checkIn) => checkIn.checkedInAt.slice(0, 10)),
+    checkIns
+      .filter(
+        (checkIn) =>
+          selectedBranchId === null || checkIn.branch.id === selectedBranchId,
+      )
+      .map((checkIn) => checkIn.checkedInAt.slice(0, 10)),
   ).size;
+
+  const visibleCheckIns = checkIns.filter(
+    (checkIn) =>
+      selectedBranchId === null || checkIn.branch.id === selectedBranchId,
+  );
+
+  const formatDuration = (checkIn: CheckIn) => {
+    if (!checkIn.checkedOutAt) return "Đang tập";
+    const minutes = Math.max(
+      0,
+      Math.round(
+        (new Date(checkIn.checkedOutAt).getTime() -
+          new Date(checkIn.checkedInAt).getTime()) /
+          60000,
+      ),
+    );
+    return `${Math.floor(minutes / 60)} giờ ${minutes % 60} phút`;
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
@@ -230,6 +257,49 @@ export default function CalendarScreen() {
           </View>
         </View>
 
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.branchFilters}
+        >
+          <Pressable
+            onPress={() => setSelectedBranchId(null)}
+            style={[
+              styles.branchFilter,
+              selectedBranchId === null && styles.branchFilterActive,
+            ]}
+          >
+            <Text
+              style={[
+                styles.branchFilterText,
+                selectedBranchId === null && styles.branchFilterTextActive,
+              ]}
+            >
+              Tất cả chi nhánh
+            </Text>
+          </Pressable>
+          {branches.map((branch) => (
+            <Pressable
+              key={branch.id}
+              onPress={() => setSelectedBranchId(branch.id)}
+              style={[
+                styles.branchFilter,
+                selectedBranchId === branch.id && styles.branchFilterActive,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.branchFilterText,
+                  selectedBranchId === branch.id &&
+                    styles.branchFilterTextActive,
+                ]}
+              >
+                {branch.name}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
+
         {/* Statistics */}
         <View style={styles.statsCard}>
           <Text style={styles.cardTitle}>TỔNG QUAN THÁNG NÀY</Text>
@@ -266,7 +336,7 @@ export default function CalendarScreen() {
           <View style={styles.noteCard}>
             <View style={styles.noteContent}>
               <Text style={styles.noteTitle}>Chi tiết {selectedDate}</Text>
-              {checkIns
+              {visibleCheckIns
                 .filter(
                   (item) => item.checkedInAt.slice(0, 10) === selectedDate,
                 )
@@ -283,7 +353,8 @@ export default function CalendarScreen() {
                           "vi-VN",
                           { hour: "2-digit", minute: "2-digit" },
                         )
-                      : "đang tập"}
+                      : "đang tập"}{" "}
+                    ({formatDuration(item)})
                   </Text>
                 ))}
               {workouts
@@ -298,7 +369,7 @@ export default function CalendarScreen() {
                       .join(", ") || "Chưa có bài tập"}
                   </Text>
                 ))}
-              {!checkIns.some(
+              {!visibleCheckIns.some(
                 (item) => item.checkedInAt.slice(0, 10) === selectedDate,
               ) &&
                 !workouts.some(
@@ -499,7 +570,7 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 5,
     borderWidth: 1.5,
-    borderColor: "#111827",
+    borderColor: "#10B981",
     backgroundColor: "#F3F4F6",
   },
 
@@ -507,6 +578,35 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#6B7280",
     fontWeight: "500",
+  },
+
+  branchFilters: {
+    gap: 8,
+    paddingVertical: 14,
+  },
+
+  branchFilter: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+  },
+
+  branchFilterActive: {
+    backgroundColor: "#111827",
+    borderColor: "#111827",
+  },
+
+  branchFilterText: {
+    color: "#6B7280",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+
+  branchFilterTextActive: {
+    color: "#FFFFFF",
   },
 
   /* Statistics Card */

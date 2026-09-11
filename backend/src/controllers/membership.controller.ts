@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { createUserNotification } from "../lib/notifications";
 import { prisma } from "../lib/prisma";
 import { AuthRequest } from "../middleware/auth.middleware";
 
@@ -57,6 +58,12 @@ export async function subscribe(req: AuthRequest, res: Response) {
       status: "ACTIVE",
     },
     include: { plan: true },
+  });
+  await createUserNotification({
+    userId: req.user.userId,
+    type: "MEMBERSHIP",
+    title: "Đăng ký gói thành công",
+    message: `${plan.name} có hiệu lực từ ${startDate.toLocaleDateString("vi-VN")}.`,
   });
   return res.status(201).json({ success: true, data: { membership } });
 }
