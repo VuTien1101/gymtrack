@@ -1,25 +1,25 @@
 import {
-  faCalendarDays,
-  faCheck,
-  faChevronRight,
-  faClock,
-  faDumbbell,
-  faFire,
-  faLocationDot,
-  faPhone,
-  faQrcode,
+    faCalendarDays,
+    faCheck,
+    faChevronRight,
+    faClock,
+    faDumbbell,
+    faFire,
+    faLocationDot,
+    faPhone,
+    faQrcode,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    Pressable,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { api, Dashboard } from "../lib/api";
@@ -79,6 +79,18 @@ export default function HomeScreen() {
         0,
         Math.ceil(
           (new Date(membership.endDate).getTime() - Date.now()) / 86400000,
+        ),
+      )
+    : 0;
+  const membershipProgress = membership
+    ? Math.min(
+        100,
+        Math.max(
+          0,
+          ((Date.now() - new Date(membership.startDate).getTime()) /
+            (new Date(membership.endDate).getTime() -
+              new Date(membership.startDate).getTime())) *
+            100,
         ),
       )
     : 0;
@@ -167,7 +179,9 @@ export default function HomeScreen() {
           </View>
 
           <View style={styles.progressBackground}>
-            <View style={styles.progress} />
+            <View
+              style={[styles.progress, { width: `${membershipProgress}%` }]}
+            />
           </View>
 
           <View style={styles.cardFooter}>

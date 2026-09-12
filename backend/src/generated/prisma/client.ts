@@ -89,3 +89,13 @@ export type Membership = Prisma.MembershipModel
  * 
  */
 export type Notification = Prisma.NotificationModel
+/**
+ * Model EmailLog
+ * 
+ */
+export type EmailLog = Prisma.EmailLogModel
+/**
+ * Model OtpCode
+ * 
+ */
+export type OtpCode = Prisma.OtpCodeModel

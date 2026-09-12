@@ -1,7 +1,14 @@
 import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { sendRegistrationEmail } from "../lib/email";
 import { prisma } from "../lib/prisma";
+import {
+    isValidEmail,
+    isValidPassword,
+    isValidVietnamesePhone,
+    parseDateOfBirth,
+} from "../lib/validation";
 
 const JWT_SECRET: string = process.env.JWT_SECRET ?? "";
 
@@ -42,15 +49,31 @@ export async function register(req: Request, res: Response) {
       });
     }
 
-    if (password.length < 6) {
+    if (!isValidEmail(email)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email không hợp lệ" });
+    }
+    if (!isValidVietnamesePhone(phone)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Số điện thoại không hợp lệ" });
+    }
+    if (!parseDateOfBirth(dateOfBirth)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Ngày sinh không hợp lệ" });
+    }
+    if (!isValidPassword(password)) {
       return res.status(400).json({
         success: false,
         message: "Mật khẩu phải có ít nhất 6 ký tự",
       });
     }
 
+    const normalizedEmail = email.trim().toLowerCase();
     const existingEmail = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (existingEmail) {
@@ -77,16 +100,21 @@ export async function register(req: Request, res: Response) {
 
     const user = await prisma.user.create({
       data: {
-        email,
+        email: normalizedEmail,
         passwordHash,
         fullName,
         phone,
         address,
-        dateOfBirth: new Date(dateOfBirth),
+        dateOfBirth: parseDateOfBirth(dateOfBirth) as Date,
       },
     });
 
     const token = generateToken(user.id, user.email);
+    await sendRegistrationEmail({
+      email: user.email,
+      fullName: user.fullName,
+      userId: user.id,
+    }).catch((error) => console.error("Registration email error:", error));
 
     return res.status(201).json({
       success: true,
@@ -97,6 +125,7 @@ export async function register(req: Request, res: Response) {
           id: user.id,
           email: user.email,
           fullName: user.fullName,
+          role: user.role,
           phone: user.phone,
           address: user.address,
           dateOfBirth: user.dateOfBirth,
@@ -125,8 +154,10 @@ export async function login(req: Request, res: Response) {
       });
     }
 
+    const normalizedEmail =
+      typeof email === "string" ? email.trim().toLowerCase() : "";
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (!user) {
@@ -156,6 +187,7 @@ export async function login(req: Request, res: Response) {
           id: user.id,
           email: user.email,
           fullName: user.fullName,
+          role: user.role,
           phone: user.phone,
           address: user.address,
           dateOfBirth: user.dateOfBirth,

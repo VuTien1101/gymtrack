@@ -21,17 +21,29 @@ GymTrack là ứng dụng quản lý phòng gym được xây dựng bằng Expo
 - Tự tính tuổi từ ngày sinh, BMI và ước tính mỡ cơ thể.
 - Đã tạo migration cho `address` và `muscleMass`.
 - Backend build hiện tại đã chạy thành công.
+- Email xác nhận đăng ký và hóa đơn membership qua SMTP (bỏ qua an toàn nếu chưa cấu hình SMTP).
+- Phân quyền `MEMBER`, `STAFF`, `ADMIN` và API dashboard quản trị.
+- Progress bar trên trang chủ phản ánh thời gian còn lại của gói tập.
+- Màn hình dashboard quản trị cho STAFF/ADMIN.
+- Quản lý chi nhánh: xem, thêm và sửa chi nhánh.
+- Quản lý hội viên: xem danh sách và ADMIN có thể xóa tài khoản MEMBER.
+- Thống kê dashboard: tổng hội viên, check-in hôm nay, người đang tập và gói sắp hết hạn.
+- OTP SMS với Twilio cho đăng ký và khôi phục mật khẩu.
+- Lưu lịch sử gửi email với trạng thái `SENT`, `FAILED`, `SKIPPED`.
+- Gửi lại email xác nhận và hóa đơn membership.
+- Prisma migrations cho roles, email logs và OTP đã được tạo và đồng bộ.
+- Backend đã có `10+` API tests, gồm test phân quyền và xóa tài khoản.
+- `npm audit` backend hiện không còn vulnerability mức high/critical.
 
 ### Chưa làm hoặc có thể phát triển tiếp
 
-- Chưa có màn hình quản lý lịch tập hoàn chỉnh.
-- Chưa có CRUD bài tập, lịch sử cân nặng và check-in dù model database đã có.
+- Chưa có màn hình CRUD buổi tập chi tiết hoàn chỉnh trên mobile.
+- Chưa nối bắt buộc bước verify OTP vào form đăng ký và quên mật khẩu trên mobile.
+- Chưa có giao diện xem lịch sử email và nút gửi lại email trên mobile.
+- Chưa có phân trang/tìm kiếm nâng cao cho danh sách hội viên.
 - `memberId` trên profile hiện vẫn là giá trị tạm trong UI.
-- Chưa có chức năng đổi mật khẩu hoàn chỉnh ở backend.
-- Chưa có phân quyền admin/member.
-- Chưa validate định dạng email, số điện thoại và ngày sinh thật chặt ở cả client/backend.
 - Ngày sinh hiện nhập thủ công theo định dạng `YYYY-MM-DD`.
-- API URL đang viết trực tiếp trong một số file mobile, nên tách ra thành config chung.
+- Chưa có production deployment và CI/CD.
 
 ## Công nghệ
 
@@ -50,6 +62,8 @@ GymTrack là ứng dụng quản lý phòng gym được xây dựng bằng Expo
 - Prisma 7 với PostgreSQL
 - JWT với `jsonwebtoken`
 - Mã hóa mật khẩu với `bcryptjs`
+- Gửi email với Nodemailer/SMTP
+- Gửi OTP SMS tùy chọn với Twilio
 
 ## Cấu trúc chính
 
@@ -70,9 +84,9 @@ gymtrack/
 ├── backend/
 │   ├── src/
 │   │   ├── server.ts            # Khởi động Express
-│   │   ├── controllers/         # Xử lý auth và user
+│   │   ├── controllers/         # Xử lý auth, user, admin, email, OTP
 │   │   ├── routes/              # Khai báo API
-│   │   ├── middleware/          # JWT middleware
+│   │   ├── middleware/          # JWT và role middleware
 │   │   └── lib/prisma.ts        # Prisma client
 │   ├── prisma/
 │   │   ├── schema.prisma        # Database schema
@@ -112,6 +126,17 @@ Tạo `backend/.env`:
 DATABASE_URL="postgresql://postgres:password@localhost:5432/gymtrack"
 JWT_SECRET="replace-with-a-long-random-secret"
 PORT=5000
+```
+
+Có thể sao chép từ `backend/.env.example` và thêm SMTP để bật email thật. Không commit mật khẩu SMTP.
+
+Nếu dùng OTP SMS, thêm `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` và `TWILIO_FROM` vào `backend/.env`. Nếu chưa cấu hình Twilio, API OTP sẽ trả về trạng thái bỏ qua việc gửi SMS để phát triển local.
+
+Để tạo tài khoản quản trị đầu tiên, điền `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME` rồi chạy:
+
+```bash
+cd backend
+npm run seed
 ```
 
 Không commit file `.env` hoặc giá trị thật của `JWT_SECRET`.
@@ -158,13 +183,13 @@ Có thể mở bằng Expo Go, Android emulator, iOS simulator hoặc web.
 
 ## API hiện có
 
-Base URL hiện dùng trên mobile:
+Base URL mobile đọc từ biến môi trường `EXPO_PUBLIC_API_URL`:
 
 ```text
-http://192.168.88.173:5000
+http://192.168.88.174:5000
 ```
 
-Nếu IP máy thay đổi, cập nhật URL trong các file mobile đang gọi API.
+Tạo file `.env` ở thư mục gốc dựa trên `.env.example` nếu IP máy thay đổi. Không commit file `.env`.
 
 ### Đăng ký
 
@@ -197,6 +222,59 @@ POST /api/auth/login
 ```
 
 JWT nằm trong `data.token`, thông tin user nằm trong `data.user`.
+
+### Đổi mật khẩu
+
+```text
+PATCH /api/auth/change-password
+Authorization: Bearer <token>
+```
+
+```json
+{
+  "currentPassword": "password123",
+  "newPassword": "new-password123"
+}
+```
+
+### Admin API
+
+Các endpoint dưới đây yêu cầu JWT của `STAFF` hoặc `ADMIN`; tạo/sửa chi nhánh yêu cầu `ADMIN`:
+
+```text
+GET /api/admin/dashboard
+GET /api/admin/members?search=...
+GET /api/admin/branches
+GET /api/admin/statistics/check-ins?month=2026-09
+POST /api/admin/branches
+PATCH /api/admin/branches/:id
+DELETE /api/admin/members/:id
+```
+
+`DELETE /api/admin/members/:id` chỉ dành cho `ADMIN`, chỉ xóa được tài khoản `MEMBER` và không cho xóa tài khoản quản trị.
+
+### Email và OTP
+
+```text
+GET  /api/emails/me
+POST /api/emails/registration/resend
+POST /api/emails/membership/:id/resend
+POST /api/otp/registration/request
+POST /api/otp/registration/verify
+POST /api/otp/password-reset/request
+POST /api/otp/password-reset/verify
+```
+
+Email được gửi từ tài khoản SMTP của phòng gym tới email khách hàng đã đăng ký. Lịch sử gửi được lưu với trạng thái `SENT`, `FAILED` hoặc `SKIPPED`.
+
+### Kiểm tra backend
+
+```bash
+cd backend
+npm test
+npm run build
+npm audit --audit-level=high
+```
 
 ### Lấy profile
 

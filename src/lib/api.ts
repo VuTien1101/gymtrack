@@ -1,6 +1,7 @@
 import * as SecureStore from "expo-secure-store";
 
-export const API_URL = "http://192.168.88.174:5000";
+export const API_URL =
+  process.env.EXPO_PUBLIC_API_URL ?? "http://172.20.10.5:5000";
 export const TOKEN_KEY = "gymtrack_token";
 export const USER_KEY = "gymtrack_user";
 
@@ -39,7 +40,7 @@ export type Dashboard = {
 
 export type AuthResponse = {
   token: string;
-  user: Record<string, unknown>;
+  user: Record<string, unknown> & { role?: "MEMBER" | "STAFF" | "ADMIN" };
 };
 
 export type MembershipPlan = {
@@ -118,6 +119,11 @@ export const api = {
     request<AuthResponse>("/api/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
+    }),
+  changePassword: (currentPassword: string, newPassword: string) =>
+    request<void>("/api/auth/change-password", {
+      method: "PATCH",
+      body: JSON.stringify({ currentPassword, newPassword }),
     }),
   register: (payload: {
     fullName: string;
@@ -202,6 +208,94 @@ export const api = {
         createdAt: string;
       }[];
     }>("/api/notifications"),
+  getAdminDashboard: () =>
+    request<{
+      memberCount: number;
+      activeCheckIns: number;
+      todayCheckIns: number;
+      expiringMemberships: number;
+    }>("/api/admin/dashboard"),
+  getAdminMembers: (search = "") =>
+    request<{
+      members: {
+        id: number;
+        fullName: string;
+        email: string;
+        phone: string | null;
+        role: string;
+        memberships: Membership[];
+        _count: { checkIns: number };
+      }[];
+    }>(`/api/admin/members?search=${encodeURIComponent(search)}`),
+  deleteAdminMember: (id: number) =>
+    request<void>(`/api/admin/members/${id}`, { method: "DELETE" }),
+  getAdminBranches: () =>
+    request<{ branches: (Branch & { _count: { checkIns: number } })[] }>(
+      "/api/admin/branches",
+    ),
+  getAdminCheckInStatistics: (month: string) =>
+    request<{
+      totalCheckIns: number;
+      byBranch: { branchId: number; branchName: string; count: number }[];
+    }>(`/api/admin/statistics/check-ins?month=${encodeURIComponent(month)}`),
+  createAdminBranch: (payload: {
+    name: string;
+    address: string;
+    phone?: string;
+    qrCode: string;
+  }) =>
+    request<{ branch: Branch }>("/api/admin/branches", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
+  updateAdminBranch: (
+    id: number,
+    payload: Partial<{
+      name: string;
+      address: string;
+      phone: string;
+      qrCode: string;
+    }>,
+  ) =>
+    request<{ branch: Branch }>(`/api/admin/branches/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(payload),
+    }),
+  getEmailLogs: () =>
+    request<{
+      emails: {
+        id: number;
+        type: string;
+        recipient: string;
+        subject: string;
+        status: string;
+        createdAt: string;
+      }[];
+    }>("/api/emails/me"),
+  resendRegistrationEmail: () =>
+    request<void>("/api/emails/registration/resend", { method: "POST" }),
+  resendMembershipReceipt: (id: number) =>
+    request<void>(`/api/emails/membership/${id}/resend`, { method: "POST" }),
+  requestRegistrationOtp: (phone: string) =>
+    request<void>("/api/otp/registration/request", {
+      method: "POST",
+      body: JSON.stringify({ phone }),
+    }),
+  verifyRegistrationOtp: (phone: string, code: string) =>
+    request<void>("/api/otp/registration/verify", {
+      method: "POST",
+      body: JSON.stringify({ phone, code }),
+    }),
+  requestPasswordResetOtp: (phone: string) =>
+    request<void>("/api/otp/password-reset/request", {
+      method: "POST",
+      body: JSON.stringify({ phone }),
+    }),
+  verifyPasswordResetOtp: (phone: string, code: string) =>
+    request<void>("/api/otp/password-reset/verify", {
+      method: "POST",
+      body: JSON.stringify({ phone, code }),
+    }),
   markNotificationRead: async (id: number) => {
     const result = await request<void>(`/api/notifications/${id}/read`, {
       method: "PATCH",

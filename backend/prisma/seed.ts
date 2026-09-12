@@ -1,6 +1,7 @@
-import { PrismaClient } from "./../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import bcrypt from "bcryptjs";
 import "dotenv/config";
+import { PrismaClient } from "./../src/generated/prisma/client";
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL is required");
@@ -9,6 +10,19 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
+  if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
+    await prisma.user.upsert({
+      where: { email: process.env.ADMIN_EMAIL.toLowerCase() },
+      update: { role: "ADMIN" },
+      create: {
+        email: process.env.ADMIN_EMAIL.toLowerCase(),
+        passwordHash: await bcrypt.hash(process.env.ADMIN_PASSWORD, 10),
+        fullName: process.env.ADMIN_NAME ?? "GymTrack Admin",
+        role: "ADMIN",
+      },
+    });
+  }
+
   const plans = [
     {
       name: "Basic Gym 1 Tháng",

@@ -19,6 +19,7 @@ import {
     View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { api } from "../lib/api";
 
 export default function ChangePasswordScreen() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -30,8 +31,9 @@ export default function ChangePasswordScreen() {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     setErrorMessage("");
 
     if (!currentPassword || !newPassword || !confirmPassword) {
@@ -49,12 +51,19 @@ export default function ChangePasswordScreen() {
       return;
     }
 
-    Alert.alert("Thành công", "Mật khẩu của bạn đã được cập nhật!", [
-      {
-        text: "OK",
-        onPress: () => router.back(),
-      },
-    ]);
+    try {
+      setIsSubmitting(true);
+      await api.changePassword(currentPassword, newPassword);
+      Alert.alert("Thành công", "Mật khẩu của bạn đã được cập nhật!", [
+        { text: "OK", onPress: () => router.back() },
+      ]);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Không thể đổi mật khẩu",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -209,12 +218,15 @@ export default function ChangePasswordScreen() {
             {/* Submit Button */}
             <Pressable
               onPress={handleChangePassword}
+              disabled={isSubmitting}
               style={({ pressed }) => [
                 styles.primaryButton,
                 pressed && styles.pressed,
               ]}
             >
-              <Text style={styles.primaryButtonText}>Cập nhật mật khẩu</Text>
+              <Text style={styles.primaryButtonText}>
+                {isSubmitting ? "Đang cập nhật..." : "Cập nhật mật khẩu"}
+              </Text>
             </Pressable>
           </View>
         </ScrollView>

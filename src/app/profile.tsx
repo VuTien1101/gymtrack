@@ -56,6 +56,7 @@ export default function ProfileScreen() {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [memberId, setMemberId] = useState("");
   const [bodyFat, setBodyFat] = useState("");
+  const [role, setRole] = useState("MEMBER");
 
   const resetProfileState = () => {
     setName("");
@@ -104,6 +105,7 @@ export default function ProfileScreen() {
       const user = result.data.user;
 
       setMemberId(`GYM-${String(user.id).padStart(6, "0")}`);
+      setRole(user.role || "MEMBER");
       setName(user.fullName || "");
       setEmail(user.email || "");
       setPhone(user.phone || "");
@@ -494,6 +496,13 @@ export default function ProfileScreen() {
       {/* ACCOUNT */}
       <Text style={styles.sectionTitleStandalone}>Tài khoản & Hệ thống</Text>
       <View style={styles.menuCard}>
+        {(role === "STAFF" || role === "ADMIN") && (
+          <MenuRow
+            icon={faGear}
+            title="Dashboard quản trị"
+            onPress={() => router.push("/admin")}
+          />
+        )}
         <MenuRow
           icon={faLock}
           title="Đổi mật khẩu"

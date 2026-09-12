@@ -18,6 +18,15 @@ export const Gender = {
 export type Gender = (typeof Gender)[keyof typeof Gender]
 
 
+export const UserRole = {
+  MEMBER: 'MEMBER',
+  STAFF: 'STAFF',
+  ADMIN: 'ADMIN'
+} as const
+
+export type UserRole = (typeof UserRole)[keyof typeof UserRole]
+
+
 export const WorkoutStatus = {
   PLANNED: 'PLANNED',
   COMPLETED: 'COMPLETED',
@@ -46,3 +55,28 @@ export const NotificationType = {
 } as const
 
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType]
+
+
+export const EmailType = {
+  REGISTRATION: 'REGISTRATION',
+  MEMBERSHIP_RECEIPT: 'MEMBERSHIP_RECEIPT'
+} as const
+
+export type EmailType = (typeof EmailType)[keyof typeof EmailType]
+
+
+export const EmailDeliveryStatus = {
+  SENT: 'SENT',
+  FAILED: 'FAILED',
+  SKIPPED: 'SKIPPED'
+} as const
+
+export type EmailDeliveryStatus = (typeof EmailDeliveryStatus)[keyof typeof EmailDeliveryStatus]
+
+
+export const OtpPurpose = {
+  REGISTRATION: 'REGISTRATION',
+  PASSWORD_RESET: 'PASSWORD_RESET'
+} as const
+
+export type OtpPurpose = (typeof OtpPurpose)[keyof typeof OtpPurpose]

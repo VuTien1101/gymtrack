@@ -15,9 +15,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { router, Tabs, useFocusEffect, usePathname } from "expo-router";
+import { router, Tabs, usePathname } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Platform, StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { EdgeSwipeBack } from "../components/edge-swipe-back";
@@ -34,31 +34,43 @@ export default function RootLayout() {
 
     SecureStore.getItemAsync(TOKEN_KEY).then((token) => {
       if (!isMounted) return;
-
       setHasToken(Boolean(token));
-      if (!token && !isPublicRoute) {
-        router.replace("/login");
-      }
     });
 
     return () => {
       isMounted = false;
     };
-  }, [isPublicRoute]);
+  }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      api
-        .getNotifications()
-        .then((result) => {
+  useEffect(() => {
+    if (hasToken === false && !isPublicRoute) {
+      router.replace("/login");
+    }
+  }, [hasToken, isPublicRoute]);
+
+  useEffect(() => {
+    if (hasToken !== true) return;
+
+    let isMounted = true;
+    api
+      .getNotifications()
+      .then((result) => {
+        if (isMounted) {
           setUnreadCount(
             result.notifications.filter((item) => !item.isRead).length,
           );
-        })
-        .catch(() => setUnreadCount(0));
-      return subscribeToUnreadNotifications(setUnreadCount);
-    }, []),
-  );
+        }
+      })
+      .catch(() => {
+        if (isMounted) setUnreadCount(0);
+      });
+
+    const unsubscribe = subscribeToUnreadNotifications(setUnreadCount);
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, [hasToken]);
 
   if (hasToken === null || (!hasToken && !isPublicRoute)) {
     return <GestureHandlerRootView style={styles.root} />;
@@ -199,6 +211,10 @@ export default function RootLayout() {
           />
           <Tabs.Screen
             name="scan"
+            options={{ href: null, tabBarStyle: { display: "none" } }}
+          />
+          <Tabs.Screen
+            name="admin"
             options={{ href: null, tabBarStyle: { display: "none" } }}
           />
         </Tabs>

@@ -1,10 +1,13 @@
 import cors from "cors";
 import express from "express";
+import adminRoutes from "./routes/admin.routes";
 import authRoutes from "./routes/auth.routes";
-import checkInRoutes from "./routes/check-in.routes";
 import branchRoutes from "./routes/branch.routes";
+import checkInRoutes from "./routes/check-in.routes";
+import emailRoutes from "./routes/email.routes";
 import membershipRoutes from "./routes/membership.routes";
 import notificationRoutes from "./routes/notification.routes";
+import otpRoutes from "./routes/otp.routes";
 import statisticsRoutes from "./routes/statistics.routes";
 import userRoutes from "./routes/user.routes";
 import workoutRoutes from "./routes/workout.routes";
@@ -27,6 +30,9 @@ app.use("/api/check-ins", checkInRoutes);
 app.use("/api/memberships", membershipRoutes);
 app.use("/api/branches", branchRoutes);
 app.use("/api/workouts", workoutRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/emails", emailRoutes);
+app.use("/api/otp", otpRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/statistics", statisticsRoutes);
 

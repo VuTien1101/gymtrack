@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { sendMembershipReceiptEmail } from "../lib/email";
 import { createUserNotification } from "../lib/notifications";
 import { prisma } from "../lib/prisma";
 import { AuthRequest } from "../middleware/auth.middleware";
@@ -65,5 +66,19 @@ export async function subscribe(req: AuthRequest, res: Response) {
     title: "Đăng ký gói thành công",
     message: `${plan.name} có hiệu lực từ ${startDate.toLocaleDateString("vi-VN")}.`,
   });
+  const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+  if (user) {
+    await sendMembershipReceiptEmail({
+      email: user.email,
+      fullName: user.fullName,
+      packageName: plan.name,
+      price: plan.price,
+      startDate,
+      endDate,
+      userId: user.id,
+    }).catch((error) =>
+      console.error("Membership receipt email error:", error),
+    );
+  }
   return res.status(201).json({ success: true, data: { membership } });
 }

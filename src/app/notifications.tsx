@@ -1,19 +1,20 @@
 import {
-  faBell,
-  faCheckDouble,
-  faChevronRight,
-  faCircleExclamation,
+    faBell,
+    faCheckDouble,
+    faChevronRight,
+    faCircleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import {
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    ActivityIndicator,
+    Pressable,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { api } from "../lib/api";
@@ -31,8 +32,11 @@ export default function NotificationsScreen() {
     }[]
   >([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const loadNotifications = useCallback(async () => {
+    setErrorMessage("");
     try {
       const result = await api.getNotifications();
       setItems(
@@ -47,6 +51,11 @@ export default function NotificationsScreen() {
       );
     } catch (error) {
       console.error("Load notifications error:", error);
+      setErrorMessage(
+        error instanceof Error ? error.message : "Không thể tải thông báo",
+      );
+    } finally {
+      setIsLoading(false);
     }
   }, []);
 
@@ -56,9 +65,10 @@ export default function NotificationsScreen() {
     }, [loadNotifications]),
   );
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 600);
+    await loadNotifications();
+    setRefreshing(false);
   };
 
   const unreadCount = items.filter((item) => item.unread).length;
@@ -133,6 +143,18 @@ export default function NotificationsScreen() {
 
         {/* List Notifications */}
         <View style={styles.notificationList}>
+          {isLoading && <ActivityIndicator color="#111827" />}
+          {!isLoading && errorMessage ? (
+            <>
+              <Text style={styles.stateText}>{errorMessage}</Text>
+              <Pressable onPress={loadNotifications}>
+                <Text style={styles.retryText}>Thử lại</Text>
+              </Pressable>
+            </>
+          ) : null}
+          {!isLoading && !errorMessage && items.length === 0 && (
+            <Text style={styles.stateText}>Chưa có thông báo nào.</Text>
+          )}
           {items.map((notification) => {
             const iconTheme = getIconStyle(notification.type);
 
@@ -390,5 +412,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#9CA3AF",
     fontWeight: "500",
+  },
+  stateText: { color: "#6B7280", textAlign: "center", paddingVertical: 20 },
+  retryText: {
+    color: "#111827",
+    fontWeight: "800",
+    textAlign: "center",
+    paddingBottom: 12,
   },
 });

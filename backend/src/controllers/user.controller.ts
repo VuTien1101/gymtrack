@@ -1,6 +1,12 @@
+import bcrypt from "bcryptjs";
 import { Response } from "express";
 import { prisma } from "../lib/prisma";
 import { calculateStreak } from "../lib/streak";
+import {
+    isValidPassword,
+    isValidVietnamesePhone,
+    parseDateOfBirth,
+} from "../lib/validation";
 import { AuthRequest } from "../middleware/auth.middleware";
 
 // GET CURRENT USER
@@ -20,6 +26,7 @@ export async function getMe(req: AuthRequest, res: Response) {
       select: {
         id: true,
         email: true,
+        role: true,
         fullName: true,
         phone: true,
         address: true,
@@ -82,6 +89,11 @@ export async function updateMe(req: AuthRequest, res: Response) {
     } = req.body;
 
     // Kiểm tra số điện thoại đã thuộc user khác chưa
+    if (phone && !isValidVietnamesePhone(phone)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Số điện thoại không hợp lệ" });
+    }
     if (phone) {
       const existingPhone = await prisma.user.findFirst({
         where: {
@@ -100,6 +112,15 @@ export async function updateMe(req: AuthRequest, res: Response) {
       }
     }
 
+    if (
+      dateOfBirth !== undefined &&
+      dateOfBirth !== null &&
+      !parseDateOfBirth(dateOfBirth)
+    ) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Ngày sinh không hợp lệ" });
+    }
     const user = await prisma.user.update({
       where: {
         id: req.user.userId,
@@ -109,7 +130,7 @@ export async function updateMe(req: AuthRequest, res: Response) {
         ...(phone !== undefined && { phone: phone || null }),
         ...(address !== undefined && { address: address || null }),
         ...(dateOfBirth !== undefined && {
-          dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+          dateOfBirth: dateOfBirth ? parseDateOfBirth(dateOfBirth) : null,
         }),
         ...(gender !== undefined && {
           gender: gender || null,
@@ -133,6 +154,7 @@ export async function updateMe(req: AuthRequest, res: Response) {
       select: {
         id: true,
         email: true,
+        role: true,
         fullName: true,
         phone: true,
         address: true,
@@ -265,4 +287,39 @@ export async function getDashboard(req: AuthRequest, res: Response) {
     console.error("Get dashboard error:", error);
     return res.status(500).json({ success: false, message: "Lỗi server" });
   }
+}
+
+export async function changePassword(req: AuthRequest, res: Response) {
+  if (!req.user)
+    return res.status(401).json({ success: false, message: "Unauthorized" });
+
+  const { currentPassword, newPassword } = req.body;
+  if (!isValidPassword(currentPassword) || !isValidPassword(newPassword)) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Mật khẩu phải có ít nhất 6 ký tự" });
+  }
+  if (currentPassword === newPassword) {
+    return res.status(400).json({
+      success: false,
+      message: "Mật khẩu mới phải khác mật khẩu hiện tại",
+    });
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+  if (!user || !(await bcrypt.compare(currentPassword, user.passwordHash))) {
+    return res
+      .status(401)
+      .json({ success: false, message: "Mật khẩu hiện tại không đúng" });
+  }
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash: await bcrypt.hash(newPassword, 10) },
+  });
+  return res.json({
+    success: true,
+    message: "Đổi mật khẩu thành công",
+    data: {},
+  });
 }
